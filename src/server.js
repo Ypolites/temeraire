@@ -61,6 +61,10 @@
   // Library Documents
   const libraryRoutes = require("./routes/library.routes");
   app.use("/sessions/:id/documents", libraryRoutes);
+
+  // Dice Rolls
+  const diceRoutes = require("./routes/dice.routes");
+  app.use("/dice", diceRoutes);
    
    /* ──────────────────────────────────────────────
       Démarrage du serveur
