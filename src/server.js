@@ -48,6 +48,10 @@
   // Avatar Moods
   const moodRoutes = require("./routes/mood.routes");
   app.use("/characters/:id/moods", moodRoutes);
+
+  // Messages
+  const messageRoutes = require("./routes/message.routes");
+  app.use("/sessions/:id/messages", messageRoutes);
    
    /* ──────────────────────────────────────────────
       Démarrage du serveur
