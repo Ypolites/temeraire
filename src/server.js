@@ -19,6 +19,11 @@
    
    // Sert les fichiers statiques (HTML, CSS, JS front-end)
    app.use(express.static(path.join(__dirname, "../public")));
+
+   // Redirige la racine vers la page de login
+   app.get("/", (req, res) => {
+     res.redirect("/login.html");
+   });
    
    /* ──────────────────────────────────────────────
       Routes API
