@@ -52,6 +52,10 @@
   // Messages
   const messageRoutes = require("./routes/message.routes");
   app.use("/sessions/:id/messages", messageRoutes);
+
+  // Library Documents
+  const libraryRoutes = require("./routes/library.routes");
+  app.use("/sessions/:id/documents", libraryRoutes);
    
    /* ──────────────────────────────────────────────
       Démarrage du serveur
