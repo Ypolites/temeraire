@@ -44,6 +44,10 @@
   // Game Sessions
   const sessionRoutes = require("./routes/session.routes");
   app.use("/sessions", sessionRoutes);
+
+  // Avatar Moods
+  const moodRoutes = require("./routes/mood.routes");
+  app.use("/characters/:id/moods", moodRoutes);
    
    /* ──────────────────────────────────────────────
       Démarrage du serveur
