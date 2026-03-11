@@ -20,7 +20,6 @@
       padding: 1.5rem 1.5rem 3rem;
     }
 
-    /* ── Page Header ── */
     .lib-page-header {
       display: flex;
       align-items: center;
@@ -36,7 +35,6 @@
       color: var(--navy);
     }
 
-    /* ── Upload Button ── */
     .btn-upload {
       display: inline-flex;
       align-items: center;
@@ -68,7 +66,6 @@
       height: 100%;
     }
 
-    /* ── Category Tabs ── */
     .category-tabs {
       display: flex;
       gap: 0;
@@ -96,23 +93,15 @@
       margin-bottom: -2px;
     }
 
-    .cat-tab:hover {
-      color: var(--navy);
-    }
+    .cat-tab:hover { color: var(--navy); }
+    .cat-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
 
-    .cat-tab.active {
-      color: var(--navy);
-      border-bottom-color: var(--gold);
-    }
-
-    /* ── Document Grid ── */
     .doc-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
     }
 
-    /* ── Document Card ── */
     .doc-card {
       background: var(--parchment);
       border: 1px solid var(--border);
@@ -131,10 +120,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .doc-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
-    }
+    .doc-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 
     .doc-card-header {
       display: flex;
@@ -198,7 +184,7 @@
     .doc-card-footer {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       margin-top: auto;
     }
 
@@ -214,14 +200,26 @@
       color: var(--navy);
       cursor: pointer;
       transition: background var(--transition), border-color var(--transition);
+      text-decoration: none;
+      display: inline-block;
     }
 
-    .btn-open:hover {
-      background: var(--parchment-dark);
-      border-color: var(--navy);
+    .btn-open:hover { background: var(--parchment-dark); border-color: var(--navy); }
+
+    .btn-delete {
+      padding: 0.35rem 0.7rem;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color var(--transition), border-color var(--transition);
     }
 
-    /* ── Empty state ── */
+    .btn-delete:hover { color: var(--danger); border-color: var(--danger); }
+
     .empty-state {
       display: flex;
       flex-direction: column;
@@ -233,10 +231,7 @@
       gap: 0.6rem;
     }
 
-    .empty-state .empty-icon {
-      font-size: 2.5rem;
-      opacity: 0.4;
-    }
+    .empty-state .empty-icon { font-size: 2.5rem; opacity: 0.4; }
 
     .empty-state p {
       font-family: 'Lato', sans-serif;
@@ -257,9 +252,7 @@
       padding: 2rem;
     }
 
-    .overlay.visible {
-      display: flex;
-    }
+    .overlay.visible { display: flex; }
 
     .modal-card {
       background: var(--parchment);
@@ -291,9 +284,7 @@
       line-height: 1;
     }
 
-    .modal-field {
-      margin-bottom: 1rem;
-    }
+    .modal-field { margin-bottom: 1rem; }
 
     .modal-field label {
       display: block;
@@ -396,11 +387,20 @@
     }
 
     .btn-confirm:hover { background: var(--navy-light); }
+    .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .modal-error {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      color: var(--danger);
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .modal-error.visible { display: block; }
 
     @media (max-width: 600px) {
-      .doc-grid {
-        grid-template-columns: 1fr;
-      }
+      .doc-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -423,17 +423,17 @@
       <h1>Bibliothèque</h1>
       <button class="btn-upload" id="uploadTrigger">
         📎 Ajouter un document
-        <input type="file" accept=".pdf" id="filePickerInput" />
+        <input type="file" accept=".pdf,.txt,.md,.docx" id="filePickerInput" />
       </button>
     </div>
 
     <!-- Category tabs -->
     <div class="category-tabs" id="categoryTabs">
       <button class="cat-tab active" data-cat="all">Tous</button>
-      <button class="cat-tab" data-cat="Règles">Règles</button>
-      <button class="cat-tab" data-cat="Directives MJ">Directives MJ</button>
-      <button class="cat-tab" data-cat="Campagne (histoire)">Campagne</button>
-      <button class="cat-tab" data-cat="Lore (univers)">Lore (univers)</button>
+      <button class="cat-tab" data-cat="R_gles">Règles</button>
+      <button class="cat-tab" data-cat="Directives_MJ">Directives MJ</button>
+      <button class="cat-tab" data-cat="Campagne">Campagne</button>
+      <button class="cat-tab" data-cat="Lore">Lore</button>
     </div>
 
     <!-- Document grid -->
@@ -463,12 +463,14 @@
       <div class="modal-field">
         <label for="docCategory">Catégorie</label>
         <select id="docCategory">
-          <option value="Règles">Règles</option>
-          <option value="Directives MJ">Directives MJ</option>
-          <option value="Campagne (histoire)">Campagne (histoire)</option>
-          <option value="Lore (univers)">Lore (univers)</option>
+          <option value="R_gles">Règles</option>
+          <option value="Directives_MJ">Directives MJ</option>
+          <option value="Campagne">Campagne</option>
+          <option value="Lore">Lore</option>
         </select>
       </div>
+
+      <div class="modal-error" id="modalError"></div>
 
       <div class="modal-btn-row">
         <button class="btn-cancel" id="modalCancel">Annuler</button>
@@ -480,63 +482,63 @@
   <script src="app.js"></script>
   <script>
     /* ══════════════════════════════════════════════════════
-       library.js — inline script for library.html
+       library.js — Temeraire JDR
+       Branché sur l'API réelle.
        ══════════════════════════════════════════════════════ */
 
+    // ── Garde : rediriger si pas de token ──
+    const AUTH_TOKEN = sessionStorage.getItem('authToken');
+    if (!AUTH_TOKEN) window.location.href = 'login.html';
+
+    const SESSION_ID = sessionStorage.getItem('sessionId');
+
+    // ── Nav user ──
     const cu = sessionStorage.getItem('currentUser');
     if (cu) document.getElementById('navUser').textContent = cu;
 
-    const CATEGORIES = ['Règles', 'Directives MJ', 'Campagne (histoire)', 'Lore (univers)'];
+    // ── Mapping catégories API → labels affichés ──
+    const CAT_LABELS = {
+      R_gles:        'Règles',
+      Directives_MJ: 'Directives MJ',
+      Campagne:      'Campagne',
+      Lore:          'Lore',
+    };
 
-    // Seed documents
-    let documents = [
-      {
-        id: 1,
-        title: 'Règles de base — Temeraire RPG',
-        category: 'Règles',
-        date: '12 janv. 2025',
-        filename: 'regles-base.pdf',
-      },
-      {
-        id: 2,
-        title: 'Guide du Maître de Jeu',
-        category: 'Directives MJ',
-        date: '18 janv. 2025',
-        filename: 'guide-mj.pdf',
-      },
-      {
-        id: 3,
-        title: 'Les Ailes du Destin — Acte I',
-        category: 'Campagne (histoire)',
-        date: '2 févr. 2025',
-        filename: 'campagne-acte1.pdf',
-      },
-      {
-        id: 4,
-        title: 'Bestiaire des Dragons Napoléoniens',
-        category: 'Lore (univers)',
-        date: '15 févr. 2025',
-        filename: 'bestiaire-dragons.pdf',
-      },
-      {
-        id: 5,
-        title: 'Carte du Corps Aérien Britannique',
-        category: 'Lore (univers)',
-        date: '20 févr. 2025',
-        filename: 'carte-corps-aerien.pdf',
-      },
-    ];
+    // ── Utilitaire API ──
+    async function apiRequest(path, method = 'GET', body = null) {
+      const headers = { Authorization: `Bearer ${AUTH_TOKEN}` };
+      if (body && !(body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
 
-    let nextId = 6;
-    let currentCat = 'all';
+      const res = await fetch(path, {
+        method,
+        headers,
+        body: body instanceof FormData
+          ? body
+          : body ? JSON.stringify(body) : undefined,
+      });
 
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) {
+        const errors = data.errors || [data.message || 'Erreur inconnue.'];
+        throw new Error(errors.join('\n'));
+      }
+      return data;
+    }
+
+    // ── État ──
+    let allDocuments = [];
+    let currentCat   = 'all';
+
+    // ── Rendu de la grille ──
     function renderDocs() {
       const grid = document.getElementById('docGrid');
       grid.innerHTML = '';
 
       const filtered = currentCat === 'all'
-        ? documents
-        : documents.filter(d => d.category === currentCat);
+        ? allDocuments
+        : allDocuments.filter(d => d.category === currentCat);
 
       if (filtered.length === 0) {
         const empty = document.createElement('div');
@@ -551,34 +553,81 @@
       }
 
       filtered.forEach(doc => {
+        const dateStr = new Date(doc.createdAt).toLocaleDateString('fr-FR', {
+          day: 'numeric', month: 'short', year: 'numeric',
+        });
+        const catLabel = CAT_LABELS[doc.category] || doc.category;
+        const fileType = doc.fileType || 'PDF';
+
         const card = document.createElement('div');
         card.className = 'doc-card';
+        card.dataset.id = doc.id;
         card.innerHTML = `
           <div class="doc-card-header">
-            <div class="doc-icon">PDF</div>
-            <span class="doc-badge">PDF</span>
+            <div class="doc-icon">${fileType}</div>
+            <span class="doc-badge">${fileType}</span>
           </div>
           <div class="doc-title">${doc.title}</div>
           <div class="doc-meta">
-            <span>${doc.category}</span>
+            <span>${catLabel}</span>
             <span class="sep"></span>
-            <span>${doc.date}</span>
-            <span class="sep"></span>
-            <span>${doc.filename}</span>
+            <span>${dateStr}</span>
           </div>
           <div class="doc-card-footer">
-            <button class="btn-open" onclick="alert('Ouverture de « ${doc.title} » — simulation uniquement.')">
-              Ouvrir
-            </button>
+            <a class="btn-open" href="${doc.fileUrl}" target="_blank" rel="noopener">Ouvrir</a>
+            <button class="btn-delete" data-id="${doc.id}" title="Supprimer">🗑 Supprimer</button>
           </div>
         `;
         grid.appendChild(card);
       });
+
+      // Attacher les listeners de suppression
+      grid.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const docId = btn.dataset.id;
+          if (!confirm('Supprimer ce document ?')) return;
+          await deleteDocument(docId);
+        });
+      });
     }
 
-    renderDocs();
+    // ── Chargement des documents ──
+    async function loadDocuments() {
+      if (!SESSION_ID) {
+        renderEmptySession();
+        return;
+      }
+      try {
+        const data = await apiRequest(`/sessions/${SESSION_ID}/documents`);
+        allDocuments = data.documents || [];
+        renderDocs();
+      } catch (err) {
+        console.error('[library] loadDocuments error:', err);
+      }
+    }
 
-    // ── Category tabs ──
+    function renderEmptySession() {
+      const grid = document.getElementById('docGrid');
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">⚠️</div>
+          <p>Aucune session trouvée. Veuillez vous reconnecter.</p>
+        </div>
+      `;
+    }
+
+    // ── Suppression d'un document ──
+    async function deleteDocument(docId) {
+      try {
+        await apiRequest(`/sessions/${SESSION_ID}/documents/${docId}`, 'DELETE');
+        allDocuments = allDocuments.filter(d => d.id !== docId);
+        renderDocs();
+      } catch (err) {
+        alert(`Erreur lors de la suppression : ${err.message}`);
+      }
+    }
+
+    // ── Tabs catégories ──
     document.querySelectorAll('.cat-tab').forEach(tab => {
       tab.addEventListener('click', function () {
         document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
@@ -596,14 +645,20 @@
       if (!file) return;
       pendingFile = file;
       document.getElementById('selectedFileName').textContent = file.name;
-      // Pre-fill title from filename
-      const guessTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
-      document.getElementById('docTitle').value = guessTitle.charAt(0).toUpperCase() + guessTitle.slice(1);
+      // Pré-remplir le titre depuis le nom du fichier
+      const guessTitle = file.name
+        .replace(/\.[^.]+$/, '')
+        .replace(/[-_]/g, ' ');
+      document.getElementById('docTitle').value =
+        guessTitle.charAt(0).toUpperCase() + guessTitle.slice(1);
       document.getElementById('uploadModal').classList.add('visible');
     });
 
     function closeModal() {
       document.getElementById('uploadModal').classList.remove('visible');
+      document.getElementById('modalError').classList.remove('visible');
+      document.getElementById('modalError').textContent = '';
+      document.getElementById('modalConfirm').disabled = false;
       pendingFile = null;
       document.getElementById('filePickerInput').value = '';
       document.getElementById('selectedFileName').textContent = 'Aucun fichier choisi';
@@ -612,41 +667,73 @@
 
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalCancel').addEventListener('click', closeModal);
-
     document.getElementById('uploadModal').addEventListener('click', function (e) {
       if (e.target === this) closeModal();
     });
 
-    document.getElementById('modalConfirm').addEventListener('click', function () {
-      const title = document.getElementById('docTitle').value.trim();
+    // ── Confirmer l'upload ──
+    document.getElementById('modalConfirm').addEventListener('click', async function () {
+      const title    = document.getElementById('docTitle').value.trim();
       const category = document.getElementById('docCategory').value;
+      const errorEl  = document.getElementById('modalError');
+
+      errorEl.classList.remove('visible');
 
       if (!title) {
         document.getElementById('docTitle').style.borderColor = 'var(--danger)';
         return;
       }
 
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+      if (!pendingFile) {
+        errorEl.textContent = 'Aucun fichier sélectionné.';
+        errorEl.classList.add('visible');
+        return;
+      }
 
-      documents.unshift({
-        id: nextId++,
-        title,
-        category,
-        date: dateStr,
-        filename: pendingFile ? pendingFile.name : 'document.pdf',
-      });
+      if (!SESSION_ID) {
+        errorEl.textContent = 'Session introuvable. Veuillez vous reconnecter.';
+        errorEl.classList.add('visible');
+        return;
+      }
 
-      closeModal();
+      this.disabled = true;
+      this.textContent = 'Envoi…';
 
-      // Switch to the right tab
-      currentCat = category;
-      document.querySelectorAll('.cat-tab').forEach(t => {
-        t.classList.toggle('active', t.dataset.cat === category);
-      });
+      try {
+        // FormData pour l'upload multipart
+        const formData = new FormData();
+        formData.append('file', pendingFile);
+        formData.append('title', title);
+        formData.append('category', category);
 
-      renderDocs();
+        const data = await apiRequest(
+          `/sessions/${SESSION_ID}/documents`,
+          'POST',
+          formData
+        );
+
+        // Ajouter le nouveau document en tête de liste
+        allDocuments.unshift(data.document);
+
+        closeModal();
+
+        // Switcher vers le bon onglet
+        currentCat = category;
+        document.querySelectorAll('.cat-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.cat === category);
+        });
+
+        renderDocs();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add('visible');
+        this.disabled = false;
+        this.textContent = 'Ajouter';
+      }
     });
+
+    // ── Chargement initial ──
+    loadDocuments();
   </script>
 </body>
 </html>
