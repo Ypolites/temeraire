@@ -4,250 +4,286 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model areas_of_expertise {
-  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                         String                         @db.VarChar
-  level                        levels_category
-  character_areas_of_expertise character_areas_of_expertise[]
+// ───────────────────────────────────────────
+// ENUMS
+// ───────────────────────────────────────────
+
+enum MoodCategory {
+  NEUTRAL
+  HAPPY
+  SAD
+  ANGRY
+  SCARED
+  DETERMINED
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model avatars_mood {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id String         @db.Uuid
-  mood_label   mood_category?
-  image_url    String?        @db.VarChar
-  characters   characters     @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+enum DocumentCategory {
+  LORE
+  RULES
+  MAP
+  OTHER
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model character_areas_of_expertise {
-  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id         String             @db.Uuid
-  area_of_expertise_id String             @db.Uuid
-  areas_of_expertise   areas_of_expertise @relation(fields: [area_of_expertise_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  characters           characters         @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([character_id, area_of_expertise_id], map: "character_areas_of_expertise_character_id_area_of_expertise_idx")
+enum SpeciesCategory {
+  HUMAN
+  DRAGON
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model character_dangers {
-  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id  String               @db.Uuid
-  danger_type   danger_type_category
-  level         Int                  @default(0)
-  track_size    Int                  @default(3)
-  track_counter Int                  @default(0)
-  characters    characters           @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([character_id, danger_type], map: "character_dangers_character_id_danger_type_idx")
+enum PronounsCategory {
+  HE_HIM
+  SHE_HER
+  THEY_THEM
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model character_devotions {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id String     @db.Uuid
-  devotion_id  String     @db.Uuid
-  is_denied    Boolean    @default(false)
-  characters   characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  devotions    devotions  @relation(fields: [devotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([character_id, devotion_id], map: "character_devotions_character_id_devotion_id_idx")
+enum LevelsCategory {
+  NOVICE
+  APPRENTICE
+  JOURNEYMAN
+  EXPERT
+  MASTER
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model character_resources {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id String     @db.Uuid
-  resource_id  String     @db.Uuid
-  uses         Int        @default(0)
-  quantity     Int        @default(1)
-  characters   characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  resources    resources  @relation(fields: [resource_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([character_id, resource_id], map: "character_resources_character_id_resource_id_idx")
+enum DangerTypeCategory {
+  WOUND
+  EXHAUSTION
+  FEAR
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model character_skills {
-  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  character_id   String     @db.Uuid
-  attribute_name String     @db.VarChar
-  skill_name     String     @db.VarChar
-  level          String?    @db.VarChar
-  characters     characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([character_id, skill_name], map: "character_skills_character_id_skill_name_idx")
+enum DevotionCategory {
+  FAITH
+  LOYALTY
+  AMBITION
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model characters {
-  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                      String                         @db.Uuid
-  game_session_id              String                         @db.Uuid
-  species                      species_category
-  name                         String                         @db.VarChar
-  pronouns                     pronouns_category
-  appearance                   String?
-  position                     String                         @db.VarChar
-  nationality                  String?                        @db.VarChar
-  service_record               String?                        @db.VarChar
-  station                      String?                        @db.VarChar
-  temperament                  String?                        @db.VarChar
-  distinctions                 String?
-  attr_body                    Int                            @default(0)
-  attr_cunning                 Int                            @default(0)
-  attr_manners                 Int                            @default(0)
-  attr_steel                   Int                            @default(0)
-  burden_duty                  Int                            @default(0)
-  burden_desire                Int                            @default(0)
-  connections                  String?
-  bonds                        String?
-  traits                       String?
-  abilities                    String?
-  equipment                    String?
-  avatars_mood                 avatars_mood[]
-  character_areas_of_expertise character_areas_of_expertise[]
-  character_dangers            character_dangers[]
-  character_devotions          character_devotions[]
-  character_resources          character_resources[]
-  character_skills             character_skills[]
-  game_session                 game_session                   @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users                        users                          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+// ───────────────────────────────────────────
+// MODELS
+// ───────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  username     String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  ownedSessions    GameSession[]    @relation("SessionOwner")
+  sessionPlayers   SessionPlayer[]
+  messages         Message[]
+  libraryDocuments LibraryDocument[]
+  characters       Character[]
+
+  @@map("users")
 }
 
-model devotions {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  devotion_type       devotion_category
-  name                String                @db.VarChar
-  description         String?
-  rank                Int
-  track_counter       Int                   @default(0)
-  character_devotions character_devotions[]
+model GameSession {
+  id          String   @id @default(uuid())
+  ownerUserId String   @map("owner_user_id")
+  name        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  owner            User              @relation("SessionOwner", fields: [ownerUserId], references: [id])
+  sessionPlayers   SessionPlayer[]
+  messages         Message[]
+  libraryDocuments LibraryDocument[]
+  characters       Character[]
+
+  @@map("game_session")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model game_session {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  owner_user_id     String              @db.Uuid
-  name              String              @db.VarChar
-  created_at        DateTime            @default(now()) @db.Timestamp(6)
-  updated_at        DateTime            @default(now()) @db.Timestamp(6)
-  characters        characters[]
-  users             users               @relation(fields: [owner_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  library_documents library_documents[]
-  messages          messages[]
-  session_player    session_player[]
+model SessionPlayer {
+  id            String @id @default(uuid())
+  gameSessionId String @map("game_session_id")
+  userId        String @map("user_id")
+
+  gameSession GameSession @relation(fields: [gameSessionId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@unique([gameSessionId, userId])
+  @@map("session_player")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model library_documents {
-  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  game_session_id    String            @db.Uuid
-  created_by_user_id String            @db.Uuid
-  category           document_category
-  title              String            @db.VarChar
-  file_type          String            @default("PDF") @db.VarChar
-  file_url           String            @db.VarChar
-  created_at         DateTime          @default(now()) @db.Timestamp(6)
-  updated_at         DateTime          @default(now()) @db.Timestamp(6)
-  users              users             @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  game_session       game_session      @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Message {
+  id            String        @id @default(uuid())
+  gameSessionId String        @map("game_session_id")
+  isGmMessage   Boolean       @default(false) @map("is_gm_message")
+  authorUserId  String?       @map("author_user_id")
+  content       String
+  caption       String?
+  selectedMood  MoodCategory? @map("selected_mood")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  gameSession GameSession @relation(fields: [gameSessionId], references: [id])
+  author      User?       @relation(fields: [authorUserId], references: [id])
+
+  @@map("messages")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model messages {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  game_session_id String         @db.Uuid
-  is_gm_message   Boolean        @default(false)
-  author_user_id  String?        @db.Uuid
-  content         String
-  caption         String?
-  selected_mood   mood_category?
-  created_at      DateTime       @default(now()) @db.Timestamp(6)
-  users           users?         @relation(fields: [author_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  game_session    game_session   @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model LibraryDocument {
+  id              String           @id @default(uuid())
+  gameSessionId   String           @map("game_session_id")
+  createdByUserId String           @map("created_by_user_id")
+  category        DocumentCategory
+  title           String
+  fileType        String           @default("PDF") @map("file_type")
+  fileUrl         String           @map("file_url")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id])
+  createdByUser User        @relation(fields: [createdByUserId], references: [id])
+
+  @@map("library_documents")
 }
 
-model resources {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String                @db.VarChar
-  description         String?
-  character_resources character_resources[]
+model Character {
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  gameSessionId String           @map("game_session_id")
+  species       SpeciesCategory
+  name          String
+  pronouns      PronounsCategory
+  appearance    String?
+  position      String
+  nationality   String?
+  serviceRecord String?          @map("service_record")
+  station       String?
+  temperament   String?
+  distinctions  String?
+  attrBody      Int              @default(0) @map("attr_body")
+  attrCunning   Int              @default(0) @map("attr_cunning")
+  attrManners   Int              @default(0) @map("attr_manners")
+  attrSteel     Int              @default(0) @map("attr_steel")
+  burdenDuty    Int              @default(0) @map("burden_duty")
+  burdenDesire  Int              @default(0) @map("burden_desire")
+  connections   String?
+  bonds         String?
+  traits        String?
+  abilities     String?
+  equipment     String?
+
+  user        User        @relation(fields: [userId], references: [id])
+  gameSession GameSession @relation(fields: [gameSessionId], references: [id])
+
+  resources         CharacterResource[]
+  areasOfExpertise  CharacterAreaOfExpertise[]
+  dangers           CharacterDanger[]
+  devotions         CharacterDevotion[]
+  skills            CharacterSkill[]
+  avatarsMood       AvatarMood[]
+
+  @@map("characters")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model session_player {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  game_session_id String       @db.Uuid
-  user_id         String       @db.Uuid
-  game_session    game_session @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users           users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Resource {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
 
-  @@unique([game_session_id, user_id], map: "session_player_game_session_id_user_id_idx")
+  characterResources CharacterResource[]
+
+  @@map("resources")
 }
 
-model users {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username          String              @db.VarChar
-  email             String              @unique @db.VarChar
-  password_hash     String              @db.VarChar
-  created_at        DateTime            @default(now()) @db.Timestamp(6)
-  characters        characters[]
-  game_session      game_session[]
-  library_documents library_documents[]
-  messages          messages[]
-  session_player    session_player[]
+model CharacterResource {
+  id          String @id @default(uuid())
+  characterId String @map("character_id")
+  resourceId  String @map("resource_id")
+  uses        Int    @default(0)
+  quantity    Int    @default(1)
+
+  character Character @relation(fields: [characterId], references: [id])
+  resource  Resource  @relation(fields: [resourceId], references: [id])
+
+  @@unique([characterId, resourceId])
+  @@map("character_resources")
 }
 
-enum danger_type_category {
-  dishonor
-  scandal
-  stress
-  wounds
+model AreaOfExpertise {
+  id    String         @id @default(uuid())
+  name  String
+  level LevelsCategory
+
+  characterAreasOfExpertise CharacterAreaOfExpertise[]
+
+  @@map("areas_of_expertise")
 }
 
-enum devotion_category {
-  duty
-  desire
+model CharacterAreaOfExpertise {
+  id                String @id @default(uuid())
+  characterId       String @map("character_id")
+  areaOfExpertiseId String @map("area_of_expertise_id")
+
+  character       Character       @relation(fields: [characterId], references: [id])
+  areaOfExpertise AreaOfExpertise @relation(fields: [areaOfExpertiseId], references: [id])
+
+  @@unique([characterId, areaOfExpertiseId])
+  @@map("character_areas_of_expertise")
 }
 
-enum document_category {
-  R_gles        @map("Règles")
-  Directives_MJ @map("Directives MJ")
-  Campagne
-  Lore
+model CharacterDanger {
+  id           String             @id @default(uuid())
+  characterId  String             @map("character_id")
+  dangerType   DangerTypeCategory @map("danger_type")
+  level        Int                @default(0)
+  trackSize    Int                @default(3) @map("track_size")
+  trackCounter Int                @default(0) @map("track_counter")
+
+  character Character @relation(fields: [characterId], references: [id])
+
+  @@unique([characterId, dangerType])
+  @@map("character_dangers")
 }
 
-enum levels_category {
-  Casual
-  Veteran
-  Esoteric
+model Devotion {
+  id           String           @id @default(uuid())
+  devotionType DevotionCategory @map("devotion_type")
+  name         String
+  description  String?
+  rank         Int
+  trackCounter Int              @default(0) @map("track_counter")
+
+  characterDevotions CharacterDevotion[]
+
+  @@map("devotions")
 }
 
-enum mood_category {
-  neutral
-  happy
-  sad
-  angry
-  scared
-  surprised
-  determined
-  hurt
-  mocking
-  focus
+model CharacterDevotion {
+  id          String  @id @default(uuid())
+  characterId String  @map("character_id")
+  devotionId  String  @map("devotion_id")
+  isDenied    Boolean @default(false) @map("is_denied")
+
+  character Character @relation(fields: [characterId], references: [id])
+  devotion  Devotion  @relation(fields: [devotionId], references: [id])
+
+  @@unique([characterId, devotionId])
+  @@map("character_devotions")
 }
 
-enum pronouns_category {
-  He_him    @map("He/him")
-  She_her   @map("She/her")
-  They_them @map("They/them")
+model CharacterSkill {
+  id            String  @id @default(uuid())
+  characterId   String  @map("character_id")
+  attributeName String  @map("attribute_name")
+  skillName     String  @map("skill_name")
+  level         String?
+
+  character Character @relation(fields: [characterId], references: [id])
+
+  @@unique([characterId, skillName])
+  @@map("character_skills")
 }
 
-enum species_category {
-  Human
-  Dragon
+model AvatarMood {
+  id          String        @id @default(uuid())
+  characterId String        @map("character_id")
+  moodLabel   MoodCategory? @map("mood_label")
+  imageUrl    String?       @map("image_url")
+
+  character Character @relation(fields: [characterId], references: [id])
+
+  @@map("avatars_mood")
 }
