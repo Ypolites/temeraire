@@ -36,6 +36,14 @@
   // LLM (mock ou provider réel)
   const llmRoutes = require("./routes/llm.routes");
   app.use("/llm", llmRoutes);
+
+  // Characters
+  const characterRoutes = require("./routes/character.route");
+  app.use("/characters", characterRoutes);
+
+  // Game Sessions
+  const sessionRoutes = require("./routes/session.routes");
+  app.use("/sessions", sessionRoutes);
    
    /* ──────────────────────────────────────────────
       Démarrage du serveur
