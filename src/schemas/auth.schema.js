@@ -22,4 +22,11 @@ const loginSchema = z.object({
   password: z.string().min(1, "Le mot de passe est requis."),
 });
 
-module.exports = { registerSchema, loginSchema };
+const resetPasswordSchema = z.object({
+  email: z.string().email("Email invalide."),
+  newPassword: z
+    .string()
+    .min(12, "Le nouveau mot de passe doit contenir au moins 12 caractères."),
+});
+
+module.exports = { registerSchema, loginSchema, resetPasswordSchema };

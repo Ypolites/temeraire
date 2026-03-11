@@ -90,4 +90,45 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+/**
+ * POST /auth/reset-password
+ * Updates the password for an existing user.
+ * Simplified flow (no email token) — to be upgraded in Phase 8.
+ */
+const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        errors: ["Aucun compte associé à cet email."],
+      });
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        errors: ["Le nouveau mot de passe doit être différent de l'ancien."],
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await prisma.user.update({
+      where: { email },
+      data: { passwordHash },
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("[auth.controller] resetPassword error:", error);
+    return res.status(500).json({
+      success: false,
+      errors: ["Erreur serveur. Veuillez réessayer."],
+    });
+  }
+};
+
+module.exports = { register, login, resetPassword };
