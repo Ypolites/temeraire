@@ -1,0 +1,22 @@
+# Dépendances Node.js
+node_modules/
+
+# Fichiers d'environnement
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Editeur de code
+.cursorrules
+.cursorignore
+
+# Prisma
+prisma/migrations/dev.db

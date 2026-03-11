@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temeraire : Le JDR — Salon de jeu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Chat Layout ── */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--ivory);
+      background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8a06a' fill-opacity='0.05'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .chat-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: calc(100vh - 56px);
+    }
+
+    /* ── Session Banner ── */
+    .session-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .session-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .session-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .session-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .session-meta {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.73rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Message List ── */
+    .message-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      scroll-behavior: smooth;
+    }
+
+    .load-more-btn {
+      align-self: center;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1.5rem;
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .load-more-btn:hover {
+      background: var(--parchment);
+      color: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .load-more-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Individual Message Rows ── */
+    .msg-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: msgIn 0.3s ease forwards;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row.gm {
+      flex-direction: row;
+    }
+
+    .msg-row.player {
+      flex-direction: row-reverse;
+    }
+
+    .msg-row.system {
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Avatar column */
+    .msg-avatar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+      width: 72px;
+    }
+
+    .msg-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      background: var(--parchment);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .msg-avatar svg,
+    .msg-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .msg-avatar-name {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Message bubble column */
+    .msg-content-col {
+      flex: 1;
+      min-width: 0;
+      max-width: 680px;
+    }
+
+    .msg-caption {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .msg-row.player .msg-caption {
+      text-align: right;
+    }
+
+    .msg-bubble {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1rem 1.2rem;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .msg-row.gm .msg-bubble {
+      border-left: 3px solid var(--navy);
+      background: linear-gradient(135deg, #f0e8d6 0%, #ebe0c4 100%);
+    }
+
+    .msg-row.player .msg-bubble {
+      border-right: 3px solid var(--gold);
+      background: linear-gradient(135deg, #f7f3eb 0%, #f0e8d6 100%);
+    }
+
+    .msg-text {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--navy);
+    }
+
+    .msg-text p + p {
+      margin-top: 0.7rem;
+    }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .msg-row.player .msg-meta {
+      justify-content: flex-end;
+    }
+
+    .msg-time {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted-light);
+    }
+
+    /* ── System Message ── */
+    .msg-system {
+      background: rgba(122, 110, 94, 0.08);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1.4rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--muted);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    /* ── Dice Request Block (inside a GM bubble) ── */
+    .dice-request {
+      margin-top: 1rem;
+      background: var(--ivory);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+    }
+
+    .dice-request-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .dice-request-label .dice-icon-sm {
+      font-size: 1rem;
+    }
+
+    .dice-input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dice-input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: var(--parchment);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius);
+      outline: none;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .dice-input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(31, 48, 94, 0.1);
+    }
+
+    .btn-launch {
+      padding: 0.5rem 1.1rem;
+      background: var(--navy);
+      color: var(--ivory);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-launch:hover:not(:disabled) {
+      background: var(--navy-light);
+    }
+
+    .btn-launch:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .dice-error {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 0.4rem;
+      display: none;
+    }
+
+    .dice-error.visible {
+      display: block;
+    }
+
+    /* ── Dice Animation Overlay ── */
+    .dice-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 28, 60, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dice-overlay.visible {
+      display: flex;
+    }
+
+    .dice-roll-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .dice-roll-faces {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .die-face {
+      width: 60px;
+      height: 60px;
+      background: var(--navy);
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--ivory);
+      animation: dieShake 0.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes dieShake {
+      from { transform: rotate(-12deg) scale(1);    }
+      to   { transform: rotate(12deg)  scale(1.08); }
+    }
+
+    .die-face:nth-child(2) {
+      animation-delay: 0.07s;
+      animation-direction: alternate-reverse;
+    }
+
+    .die-face:nth-child(3) {
+      animation-delay: 0.14s;
+    }
+
+    .dice-roll-text {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      animation: fadeFlicker 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeFlicker {
+      from { opacity: 0.6; }
+      to   { opacity: 1; }
+    }
+
+    /* ── Composer ── */
+    .composer-area {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      padding: 0.9rem 0;
+      background: var(--ivory);
+    }
+
+    .composer-card {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Mood & caption row */
+    .composer-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem 0;
+    }
+
+    .mood-selector {
+      position: relative;
+    }
+
+    .mood-thumb {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      border: 2px solid var(--border-dark);
+      background: var(--ivory);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .mood-thumb:hover {
+      border-color: var(--gold);
+    }
+
+    .mood-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mood-dropdown {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 30;
+      width: 220px;
+    }
+
+    .mood-dropdown.open {
+      display: block;
+    }
+
+    .mood-dropdown-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.35rem;
+    }
+
+    .mood-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      cursor: pointer;
+      padding: 0.3rem 0.2rem;
+      border-radius: 2px;
+      transition: background var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .mood-option:hover {
+      background: var(--parchment-dark);
+    }
+
+    .mood-option.selected {
+      border-color: var(--gold);
+      background: rgba(184, 150, 62, 0.1);
+    }
+
+    .mood-option-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 2px;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      overflow: hidden;
+    }
+
+    .mood-option-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.58rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .caption-input {
+      flex: 1;
+      padding: 0.45rem 0.7rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--muted);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    .caption-input:focus {
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+
+    .caption-input::placeholder {
+      color: var(--muted-light);
+    }
+
+    /* Text row */
+    .composer-main {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem 0.75rem;
+    }
+
+    .message-input {
+      flex: 1;
+      resize: none;
+      padding: 0.6rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.93rem;
+      line-height: 1.5;
+      color: var(--navy);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      max-height: 130px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .message-input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(31, 48, 94, 0.1);
+    }
+
+    .message-input::placeholder {
+      color: var(--muted-light);
+    }
+
+    .btn-send {
+      padding: 0.6rem 1.4rem;
+      background: var(--navy);
+      color: var(--ivory);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
+      height: 38px;
+    }
+
+    .btn-send:hover {
+      background: var(--navy-light);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .msg-avatar {
+        width: 48px;
+        height: 48px;
+      }
+      .msg-avatar-col {
+        width: 52px;
+      }
+      .msg-bubble {
+        padding: 0.75rem 0.9rem;
+      }
+      .msg-text {
+        font-size: 0.88rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .chat-wrapper {
+        padding: 0 0.5rem;
+      }
+      .composer-top {
+        padding: 0.5rem 0.75rem 0;
+      }
+      .composer-main {
+        padding: 0.5rem 0.75rem 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="app-nav">
+    <div class="nav-brand">
+      ⚓ <span>Temeraire <span class="brand-accent">·</span> JDR</span>
+    </div>
+    <div class="nav-links">
+      <a href="chat.html" class="nav-link active">Salon</a>
+      <a href="character.html" class="nav-link">Personnage</a>
+      <a href="library.html" class="nav-link">Bibliothèque</a>
+    </div>
+    <div class="nav-user" id="navUser">joueur1@temeraire.fr</div>
+  </nav>
+
+  <!-- Chat wrapper -->
+  <div class="chat-wrapper">
+
+    <!-- Session banner -->
+    <div class="session-banner">
+      <div class="session-info">
+        <div class="session-icon">🐉</div>
+        <div>
+          <div class="session-name">Campagne : Les Ailes du Destin</div>
+          <div class="session-meta">Session en cours · 2 joueurs</div>
+        </div>
+      </div>
+      <div id="sessionSyncBadge" class="sync-badge synced">
+        <div class="dot"></div>Synchronisé
+      </div>
+    </div>
+
+    <!-- Message list -->
+    <div class="message-list" id="messageList">
+
+      <button class="load-more-btn" id="loadMoreBtn">
+        ↑ Charger plus
+      </button>
+
+      <!-- Messages injected by JS -->
+
+    </div>
+
+    <!-- Composer -->
+    <div class="composer-area">
+      <div class="composer-card">
+        <div class="composer-top">
+          <!-- Mood selector -->
+          <div class="mood-selector">
+            <div class="mood-thumb" id="moodThumb" title="Choisir une humeur">
+              😐
+            </div>
+            <div class="mood-dropdown" id="moodDropdown">
+              <div class="mood-dropdown-title">Humeur du personnage</div>
+              <div class="mood-grid" id="moodGrid"></div>
+            </div>
+          </div>
+
+          <!-- Caption input -->
+          <input
+            type="text"
+            class="caption-input"
+            id="captionInput"
+            placeholder="*Didacticule en ajustant ses gants…*"
+            maxlength="120"
+          />
+        </div>
+
+        <div class="composer-main">
+          <textarea
+            class="message-input"
+            id="messageInput"
+            placeholder="Écrivez votre message…"
+            rows="2"
+          ></textarea>
+          <button class="btn-send" id="sendBtn">Envoyer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dice animation overlay -->
+  <div class="dice-overlay" id="diceOverlay">
+    <div class="dice-roll-visual">
+      <div class="dice-roll-faces" id="diceRollFaces">
+        <div class="die-face" id="die1">?</div>
+        <div class="die-face" id="die2">?</div>
+        <div class="die-face" id="die3">?</div>
+      </div>
+      <div class="dice-roll-text">Lancer en cours…</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    /* ══════════════════════════════════════════
+       chat.js — inline script for chat.html
+       ══════════════════════════════════════════ */
+
+    // ── Nav user ──
+    const cu = sessionStorage.getItem('currentUser');
+    if (cu) document.getElementById('navUser').textContent = cu;
+
+    // ── Mood definitions ──
+    const MOODS = [
+      { label: 'Neutre',      emoji: '😐' },
+      { label: 'Heureux·se',  emoji: '😊' },
+      { label: 'Triste',      emoji: '😢' },
+      { label: 'En colère',   emoji: '😠' },
+      { label: 'Effrayé·e',   emoji: '😨' },
+      { label: 'Surpris·e',   emoji: '😲' },
+      { label: 'Déterminé·e', emoji: '😤' },
+      { label: 'Blessé·e',    emoji: '🤕' },
+      { label: 'Moqueur·se',  emoji: '😏' },
+      { label: 'Concentré·e', emoji: '🧐' },
+    ];
+
+    let selectedMood = MOODS[0];
+
+    // Build mood grid
+    const moodGrid = document.getElementById('moodGrid');
+    MOODS.forEach((m, i) => {
+      const opt = document.createElement('div');
+      opt.className = 'mood-option' + (i === 0 ? ' selected' : '');
+      opt.innerHTML = `
+        <div class="mood-option-img">${m.emoji}</div>
+        <div class="mood-option-label">${m.label}</div>
+      `;
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        selectedMood = m;
+        document.getElementById('moodThumb').textContent = m.emoji;
+        document.getElementById('moodDropdown').classList.remove('open');
+      });
+      moodGrid.appendChild(opt);
+    });
+
+    // Toggle mood dropdown
+    document.getElementById('moodThumb').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('moodDropdown').classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+      document.getElementById('moodDropdown').classList.remove('open');
+    });
+
+    // ── Message store ──
+    const FORMAT_TIME = (d) => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    // Older messages (load-more)
+    const OLDER_MESSAGES = [
+      {
+        type: 'system',
+        text: 'La campagne « Les Ailes du Destin » a commencé.',
+        time: new Date(Date.now() - 7200000),
+      },
+      {
+        type: 'gm',
+        text: 'Bienvenue, Capitaine. L\'Angleterre a besoin de vous. Des rapports font état d\'une activité inhabituelle au-dessus du détroit de Douvres — des dragons que personne ne reconnaît.',
+        time: new Date(Date.now() - 6800000),
+      },
+      {
+        type: 'player',
+        mood: MOODS[0],
+        caption: '',
+        text: 'Je hoche la tête avec gravité. Quelles sont nos informations sur ces créatures, Amiral ?',
+        time: new Date(Date.now() - 6750000),
+      },
+    ];
+
+    // Main messages (already visible)
+    const INITIAL_MESSAGES = [
+      {
+        type: 'gm',
+        text: 'Vos sources indiquent qu\'il s\'agirait de dragons de race inconnue, peut-être des émissaires napoléoniens. Le Premier Lord de l\'Amirauté exige des éclaircissements avant la tombée de la nuit.',
+        time: new Date(Date.now() - 3600000),
+      },
+      {
+        type: 'player',
+        mood: MOODS[6],
+        caption: '*D\'un ton résolu, ajustant sa veste d\'officier*',
+        text: 'Temeraire et moi partirons en reconnaissance immédiatement. Que l\'on prépare l\'équipement de vol.',
+        time: new Date(Date.now() - 3540000),
+      },
+      {
+        type: 'gm',
+        text: 'Excellent. Au moment où vous vous apprêtez à décoller, un message urgent vous parvient : un dragon blessé a été repéré dans la lande, au nord-est d\'Édimbourg.',
+        hasDiceRequest: true,
+        diceDefault: '/roll 1d20+3',
+        dicePrompt: 'Temeraire tente de localiser le dragon. Saisis ta commande de jet de dés :',
+        time: new Date(Date.now() - 3000000),
+        id: 'msg-dice-1',
+      },
+      {
+        type: 'system',
+        text: 'Temeraire s\'élève dans les airs. Le vent est favorable.',
+        time: new Date(Date.now() - 2900000),
+      },
+    ];
+
+    let olderLoaded = false;
+    let currentDiceMessageId = 'msg-dice-1'; // track which GM dice message is active
+
+    // ── Render helpers ──
+    function gmAvatar() {
+      return `<svg viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;background:#1f305e">
+        <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-size="32">🐉</text>
+      </svg>`;
+    }
+
+    function playerAvatar(mood) {
+      return `<div style="width:100%;height:100%;background:var(--parchment-dark);display:flex;align-items:center;justify-content:center;font-size:1.8rem">${mood ? mood.emoji : '👤'}</div>`;
+    }
+
+    function renderMessage(msg, prepend = false) {
+      const list = document.getElementById('messageList');
+      const row = document.createElement('div');
+
+      if (msg.type === 'system') {
+        row.className = 'msg-row system';
+        row.innerHTML = `<div class="msg-system">${msg.text}</div>`;
+        if (prepend) {
+          list.insertBefore(row, list.firstChild.nextSibling); // after load-more btn
+        } else {
+          list.appendChild(row);
+        }
+        return;
+      }
+
+      const isGM = msg.type === 'gm';
+      row.className = `msg-row ${isGM ? 'gm' : 'player'}`;
+      if (msg.id) row.id = msg.id;
+
+      const diceHtml = msg.hasDiceRequest ? `
+        <div class="dice-request" id="diceRequest-${msg.id}">
+          <div class="dice-request-label">
+            <span class="dice-icon-sm">🎲</span>
+            ${msg.dicePrompt}
+          </div>
+          <div class="dice-input-row">
+            <input type="text" class="dice-input" id="diceInput-${msg.id}" value="${msg.diceDefault}" />
+            <button class="btn-launch" id="diceLaunch-${msg.id}">Lancer</button>
+          </div>
+          <div class="dice-error" id="diceError-${msg.id}"></div>
+        </div>
+      ` : '';
+
+      const metaSyncBadge = msg.sync === 'pending'
+        ? `<span class="sync-badge pending"><span class="dot"></span>En attente</span>`
+        : msg.sync === 'failed'
+        ? `<span class="sync-badge failed"><span class="dot"></span>Échec</span>`
+        : '';
+
+      if (isGM) {
+        row.innerHTML = `
+          <div class="msg-avatar-col">
+            <div class="msg-avatar">${gmAvatar()}</div>
+            <div class="msg-avatar-name">MJ</div>
+          </div>
+          <div class="msg-content-col">
+            <div class="msg-bubble">
+              <div class="msg-text">${msg.text}</div>
+              ${diceHtml}
+              <div class="msg-meta">
+                <span class="msg-time">${FORMAT_TIME(msg.time)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        row.innerHTML = `
+          <div class="msg-content-col" style="text-align:right">
+            ${msg.caption ? `<div class="msg-caption">${msg.caption}</div>` : ''}
+            <div class="msg-bubble">
+              <div class="msg-text">${msg.text}</div>
+              <div class="msg-meta" style="justify-content:flex-end">
+                ${metaSyncBadge}
+                <span class="msg-time">${FORMAT_TIME(msg.time)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="msg-avatar-col">
+            <div class="msg-avatar">${playerAvatar(msg.mood)}</div>
+            <div class="msg-avatar-name">${msg.mood ? msg.mood.label : 'Joueur'}</div>
+          </div>
+        `;
+      }
+
+      if (prepend) {
+        const btn = document.getElementById('loadMoreBtn');
+        list.insertBefore(row, btn.nextSibling);
+      } else {
+        list.appendChild(row);
+      }
+
+      // Attach dice button listener if present
+      if (msg.hasDiceRequest && msg.id) {
+        attachDiceHandler(msg.id);
+      }
+    }
+
+    function attachDiceHandler(msgId) {
+      const btn = document.getElementById(`diceLaunch-${msgId}`);
+      const input = document.getElementById(`diceInput-${msgId}`);
+      const errEl = document.getElementById(`diceError-${msgId}`);
+
+      if (!btn || !input) return;
+
+      btn.addEventListener('click', () => {
+        errEl.classList.remove('visible');
+        const cmd = input.value.trim();
+        const result = parseDiceCommand(cmd);
+        if (!result.valid) {
+          errEl.textContent = result.error;
+          errEl.classList.add('visible');
+          return;
+        }
+        runDiceAnimation(result, msgId);
+      });
+    }
+
+    // ── Render initial messages ──
+    INITIAL_MESSAGES.forEach(m => renderMessage(m));
+
+    // Scroll to bottom
+    const msgList = document.getElementById('messageList');
+    msgList.scrollTop = msgList.scrollHeight;
+
+    // ── Load more ──
+    document.getElementById('loadMoreBtn').addEventListener('click', function () {
+      if (olderLoaded) return;
+      olderLoaded = true;
+      this.disabled = true;
+      this.textContent = 'Tout affiché';
+
+      const scrollBefore = msgList.scrollHeight;
+      OLDER_MESSAGES.slice().reverse().forEach(m => renderMessage(m, true));
+      // Preserve scroll position
+      msgList.scrollTop = msgList.scrollHeight - scrollBefore;
+    });
+
+    // ── Dice parsing ──
+    function parseDiceCommand(cmd) {
+      const clean = cmd.replace(/\s+/g, '').toLowerCase();
+      const match = clean.match(/^\/roll\s*(\d+)d(\d+)([+-]\d+)?$/) ||
+                    clean.match(/^(\d+)d(\d+)([+-]\d+)?$/);
+      if (!match) {
+        return { valid: false, error: 'Commande invalide. Exemples : /roll 1d20, /roll 2d6+3, 1d8-1' };
+      }
+      const n = parseInt(match[1]);
+      const x = parseInt(match[2]);
+      const mod = match[3] ? parseInt(match[3]) : 0;
+
+      if (n < 1 || n > 20) return { valid: false, error: 'Nombre de dés invalide (1 à 20).' };
+      if (x < 2 || x > 100) return { valid: false, error: 'Faces de dé invalides (2 à 100).' };
+
+      const rolls = [];
+      for (let i = 0; i < n; i++) {
+        rolls.push(Math.floor(Math.random() * x) + 1);
+      }
+      const sum = rolls.reduce((a, b) => a + b, 0);
+      const total = sum + mod;
+      const modStr = mod > 0 ? `+${mod}` : mod < 0 ? `${mod}` : '';
+      const breakdown = `[${rolls.join(', ')}]${modStr}`;
+      return {
+        valid: true, n, x, mod, rolls, total, sum,
+        label: `${n}d${x}${modStr}`,
+        breakdown,
+      };
+    }
+
+    // ── Dice animation & result ──
+    function runDiceAnimation(result, msgId) {
+      const overlay = document.getElementById('diceOverlay');
+      const faces = document.getElementById('diceRollFaces');
+
+      // Show/hide die faces based on count
+      const dieEls = faces.querySelectorAll('.die-face');
+      const showCount = Math.min(result.n, 3);
+      dieEls.forEach((d, i) => {
+        d.style.display = i < showCount ? 'flex' : 'none';
+        d.textContent = '?';
+      });
+
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+
+      // Animate random numbers
+      let ticks = 0;
+      const maxTicks = 18;
+      const interval = setInterval(() => {
+        dieEls.forEach((d, i) => {
+          if (i < showCount) {
+            d.textContent = Math.floor(Math.random() * result.x) + 1;
+          }
+        });
+        ticks++;
+        if (ticks >= maxTicks) {
+          clearInterval(interval);
+          // Show final values
+          result.rolls.slice(0, showCount).forEach((val, i) => {
+            dieEls[i].textContent = val;
+          });
+
+          setTimeout(() => {
+            overlay.classList.remove('visible');
+            document.body.style.overflow = '';
+
+            // Post result as system message
+            const resultMsg = {
+              type: 'system',
+              text: `🎲 Résultat : ${result.label} = <strong>${result.total}</strong> (${result.breakdown})`,
+              time: new Date(),
+            };
+            renderMessage(resultMsg);
+            msgList.scrollTop = msgList.scrollHeight;
+
+            // Disable the dice request that was just used
+            const btn = document.getElementById(`diceLaunch-${msgId}`);
+            const inp = document.getElementById(`diceInput-${msgId}`);
+            if (btn) { btn.disabled = true; btn.textContent = 'Lancé'; }
+            if (inp) inp.disabled = true;
+
+            // Simulate GM follow-up
+            setTimeout(() => {
+              const followup = {
+                type: 'gm',
+                text: `Résultat noté. Avec un total de <strong>${result.total}</strong>, Temeraire repère une silhouette sombre sur les landes brumeuses — un dragon aux écailles vert foncé, immobile.`,
+                time: new Date(),
+              };
+              renderMessage(followup);
+              msgList.scrollTop = msgList.scrollHeight;
+            }, 1200);
+
+          }, 600);
+        }
+      }, 100);
+    }
+
+    // ── Send message ──
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Auto-resize textarea
+    const msgInput = document.getElementById('messageInput');
+    msgInput.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+    });
+
+    function sendMessage() {
+      const text = document.getElementById('messageInput').value.trim();
+      if (!text) return;
+
+      const caption = document.getElementById('captionInput').value.trim();
+      const mood = selectedMood;
+
+      const msg = {
+        type: 'player',
+        mood,
+        caption,
+        text,
+        time: new Date(),
+        sync: 'pending',
+      };
+
+      renderMessage(msg);
+      msgList.scrollTop = msgList.scrollHeight;
+
+      // Clear inputs
+      document.getElementById('messageInput').value = '';
+      document.getElementById('messageInput').style.height = 'auto';
+      document.getElementById('captionInput').value = '';
+
+      // Simulate sync
+      setTimeout(() => {
+        const rows = msgList.querySelectorAll('.msg-row.player');
+        const last = rows[rows.length - 1];
+        if (last) {
+          const badge = last.querySelector('.sync-badge');
+          if (badge) {
+            badge.className = 'sync-badge synced';
+            badge.innerHTML = '<span class="dot"></span>Synchronisé';
+          }
+        }
+      }, 1200);
+    }
+
+    // ── Simulate session sync badge ──
+    setTimeout(() => {
+      const badge = document.getElementById('sessionSyncBadge');
+      badge.className = 'sync-badge pending';
+      badge.innerHTML = '<span class="dot"></span>En attente';
+      setTimeout(() => {
+        badge.className = 'sync-badge synced';
+        badge.innerHTML = '<span class="dot"></span>Synchronisé';
+      }, 2000);
+    }, 5000);
+  </script>
+</body>
+</html>

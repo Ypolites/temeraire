@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temeraire : Le JDR — Bibliothèque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background-color: var(--ivory);
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8a06a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .page-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    /* ── Page Header ── */
+    .lib-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .lib-page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+    }
+
+    /* ── Upload Button ── */
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.3rem;
+      background: var(--navy);
+      color: var(--ivory);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-upload:hover { background: var(--navy-light); }
+
+    .btn-upload input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Category Tabs ── */
+    .category-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .category-tabs::-webkit-scrollbar { display: none; }
+
+    .cat-tab {
+      padding: 0.65rem 1.2rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color var(--transition), border-color var(--transition);
+      margin-bottom: -2px;
+    }
+
+    .cat-tab:hover {
+      color: var(--navy);
+    }
+
+    .cat-tab.active {
+      color: var(--navy);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ── Document Grid ── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── Document Card ── */
+    .doc-card {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition), transform var(--transition);
+      animation: cardIn 0.25s ease forwards;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .doc-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .doc-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .doc-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--danger);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .doc-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      background: rgba(180, 60, 60, 0.12);
+      color: var(--danger);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      border-radius: 3px;
+    }
+
+    .doc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.3;
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .doc-meta .sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--muted-light);
+      flex-shrink: 0;
+    }
+
+    .doc-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: auto;
+    }
+
+    .btn-open {
+      padding: 0.35rem 0.9rem;
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--navy);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .btn-open:hover {
+      background: var(--parchment-dark);
+      border-color: var(--navy);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      gap: 0.6rem;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 2.5rem;
+      opacity: 0.4;
+    }
+
+    .empty-state p {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      font-style: italic;
+    }
+
+    /* ── Upload Modal ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 28, 60, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .overlay.visible {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem 2rem;
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--navy);
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 0.8rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-field {
+      margin-bottom: 1rem;
+    }
+
+    .modal-field label {
+      display: block;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .modal-field input,
+    .modal-field select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      color: var(--navy);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .modal-field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231f305e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      padding-right: 2rem;
+      cursor: pointer;
+    }
+
+    .file-display {
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .file-display .file-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--danger);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+
+    .modal-btn-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 0.6rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .btn-cancel:hover { background: var(--parchment-dark); }
+
+    .btn-confirm {
+      flex: 2;
+      padding: 0.6rem;
+      background: var(--navy);
+      color: var(--ivory);
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .btn-confirm:hover { background: var(--navy-light); }
+
+    @media (max-width: 600px) {
+      .doc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="app-nav">
+    <div class="nav-brand">⚓ <span>Temeraire <span class="brand-accent">·</span> JDR</span></div>
+    <div class="nav-links">
+      <a href="chat.html" class="nav-link">Salon</a>
+      <a href="character.html" class="nav-link">Personnage</a>
+      <a href="library.html" class="nav-link active">Bibliothèque</a>
+    </div>
+    <div class="nav-user" id="navUser"></div>
+  </nav>
+
+  <div class="page-content">
+
+    <div class="lib-page-header">
+      <h1>Bibliothèque</h1>
+      <button class="btn-upload" id="uploadTrigger">
+        📎 Ajouter un document
+        <input type="file" accept=".pdf" id="filePickerInput" />
+      </button>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="category-tabs" id="categoryTabs">
+      <button class="cat-tab active" data-cat="all">Tous</button>
+      <button class="cat-tab" data-cat="Règles">Règles</button>
+      <button class="cat-tab" data-cat="Directives MJ">Directives MJ</button>
+      <button class="cat-tab" data-cat="Campagne (histoire)">Campagne</button>
+      <button class="cat-tab" data-cat="Lore (univers)">Lore (univers)</button>
+    </div>
+
+    <!-- Document grid -->
+    <div class="doc-grid" id="docGrid"></div>
+
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="overlay" id="uploadModal">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose">×</button>
+      <h3>Ajouter un document</h3>
+
+      <div class="modal-field">
+        <label>Fichier sélectionné</label>
+        <div class="file-display">
+          <div class="file-icon">PDF</div>
+          <span id="selectedFileName">Aucun fichier choisi</span>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label for="docTitle">Titre du document</label>
+        <input type="text" id="docTitle" placeholder="Ex. : Règles de base — Temeraire RPG" />
+      </div>
+
+      <div class="modal-field">
+        <label for="docCategory">Catégorie</label>
+        <select id="docCategory">
+          <option value="Règles">Règles</option>
+          <option value="Directives MJ">Directives MJ</option>
+          <option value="Campagne (histoire)">Campagne (histoire)</option>
+          <option value="Lore (univers)">Lore (univers)</option>
+        </select>
+      </div>
+
+      <div class="modal-btn-row">
+        <button class="btn-cancel" id="modalCancel">Annuler</button>
+        <button class="btn-confirm" id="modalConfirm">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    /* ══════════════════════════════════════════════════════
+       library.js — inline script for library.html
+       ══════════════════════════════════════════════════════ */
+
+    const cu = sessionStorage.getItem('currentUser');
+    if (cu) document.getElementById('navUser').textContent = cu;
+
+    const CATEGORIES = ['Règles', 'Directives MJ', 'Campagne (histoire)', 'Lore (univers)'];
+
+    // Seed documents
+    let documents = [
+      {
+        id: 1,
+        title: 'Règles de base — Temeraire RPG',
+        category: 'Règles',
+        date: '12 janv. 2025',
+        filename: 'regles-base.pdf',
+      },
+      {
+        id: 2,
+        title: 'Guide du Maître de Jeu',
+        category: 'Directives MJ',
+        date: '18 janv. 2025',
+        filename: 'guide-mj.pdf',
+      },
+      {
+        id: 3,
+        title: 'Les Ailes du Destin — Acte I',
+        category: 'Campagne (histoire)',
+        date: '2 févr. 2025',
+        filename: 'campagne-acte1.pdf',
+      },
+      {
+        id: 4,
+        title: 'Bestiaire des Dragons Napoléoniens',
+        category: 'Lore (univers)',
+        date: '15 févr. 2025',
+        filename: 'bestiaire-dragons.pdf',
+      },
+      {
+        id: 5,
+        title: 'Carte du Corps Aérien Britannique',
+        category: 'Lore (univers)',
+        date: '20 févr. 2025',
+        filename: 'carte-corps-aerien.pdf',
+      },
+    ];
+
+    let nextId = 6;
+    let currentCat = 'all';
+
+    function renderDocs() {
+      const grid = document.getElementById('docGrid');
+      grid.innerHTML = '';
+
+      const filtered = currentCat === 'all'
+        ? documents
+        : documents.filter(d => d.category === currentCat);
+
+      if (filtered.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.style.gridColumn = '1/-1';
+        empty.innerHTML = `
+          <div class="empty-icon">📚</div>
+          <p>Aucun document dans cette catégorie.</p>
+        `;
+        grid.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(doc => {
+        const card = document.createElement('div');
+        card.className = 'doc-card';
+        card.innerHTML = `
+          <div class="doc-card-header">
+            <div class="doc-icon">PDF</div>
+            <span class="doc-badge">PDF</span>
+          </div>
+          <div class="doc-title">${doc.title}</div>
+          <div class="doc-meta">
+            <span>${doc.category}</span>
+            <span class="sep"></span>
+            <span>${doc.date}</span>
+            <span class="sep"></span>
+            <span>${doc.filename}</span>
+          </div>
+          <div class="doc-card-footer">
+            <button class="btn-open" onclick="alert('Ouverture de « ${doc.title} » — simulation uniquement.')">
+              Ouvrir
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    renderDocs();
+
+    // ── Category tabs ──
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentCat = this.dataset.cat;
+        renderDocs();
+      });
+    });
+
+    // ── Upload flow ──
+    let pendingFile = null;
+
+    document.getElementById('filePickerInput').addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      pendingFile = file;
+      document.getElementById('selectedFileName').textContent = file.name;
+      // Pre-fill title from filename
+      const guessTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+      document.getElementById('docTitle').value = guessTitle.charAt(0).toUpperCase() + guessTitle.slice(1);
+      document.getElementById('uploadModal').classList.add('visible');
+    });
+
+    function closeModal() {
+      document.getElementById('uploadModal').classList.remove('visible');
+      pendingFile = null;
+      document.getElementById('filePickerInput').value = '';
+      document.getElementById('selectedFileName').textContent = 'Aucun fichier choisi';
+      document.getElementById('docTitle').value = '';
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+
+    document.getElementById('uploadModal').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    document.getElementById('modalConfirm').addEventListener('click', function () {
+      const title = document.getElementById('docTitle').value.trim();
+      const category = document.getElementById('docCategory').value;
+
+      if (!title) {
+        document.getElementById('docTitle').style.borderColor = 'var(--danger)';
+        return;
+      }
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      documents.unshift({
+        id: nextId++,
+        title,
+        category,
+        date: dateStr,
+        filename: pendingFile ? pendingFile.name : 'document.pdf',
+      });
+
+      closeModal();
+
+      // Switch to the right tab
+      currentCat = category;
+      document.querySelectorAll('.cat-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.cat === category);
+      });
+
+      renderDocs();
+    });
+  </script>
+</body>
+</html>

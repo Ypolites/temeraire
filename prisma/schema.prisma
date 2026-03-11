@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model areas_of_expertise {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                         String                         @db.VarChar
+  level                        levels_category
+  character_areas_of_expertise character_areas_of_expertise[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model avatars_mood {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id String         @db.Uuid
+  mood_label   mood_category?
+  image_url    String?        @db.VarChar
+  characters   characters     @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model character_areas_of_expertise {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id         String             @db.Uuid
+  area_of_expertise_id String             @db.Uuid
+  areas_of_expertise   areas_of_expertise @relation(fields: [area_of_expertise_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  characters           characters         @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([character_id, area_of_expertise_id], map: "character_areas_of_expertise_character_id_area_of_expertise_idx")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model character_dangers {
+  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id  String               @db.Uuid
+  danger_type   danger_type_category
+  level         Int                  @default(0)
+  track_size    Int                  @default(3)
+  track_counter Int                  @default(0)
+  characters    characters           @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([character_id, danger_type], map: "character_dangers_character_id_danger_type_idx")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model character_devotions {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id String     @db.Uuid
+  devotion_id  String     @db.Uuid
+  is_denied    Boolean    @default(false)
+  characters   characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  devotions    devotions  @relation(fields: [devotion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([character_id, devotion_id], map: "character_devotions_character_id_devotion_id_idx")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model character_resources {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id String     @db.Uuid
+  resource_id  String     @db.Uuid
+  uses         Int        @default(0)
+  quantity     Int        @default(1)
+  characters   characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  resources    resources  @relation(fields: [resource_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([character_id, resource_id], map: "character_resources_character_id_resource_id_idx")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model character_skills {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id   String     @db.Uuid
+  attribute_name String     @db.VarChar
+  skill_name     String     @db.VarChar
+  level          String?    @db.VarChar
+  characters     characters @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([character_id, skill_name], map: "character_skills_character_id_skill_name_idx")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model characters {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                      String                         @db.Uuid
+  game_session_id              String                         @db.Uuid
+  species                      species_category
+  name                         String                         @db.VarChar
+  pronouns                     pronouns_category
+  appearance                   String?
+  position                     String                         @db.VarChar
+  nationality                  String?                        @db.VarChar
+  service_record               String?                        @db.VarChar
+  station                      String?                        @db.VarChar
+  temperament                  String?                        @db.VarChar
+  distinctions                 String?
+  attr_body                    Int                            @default(0)
+  attr_cunning                 Int                            @default(0)
+  attr_manners                 Int                            @default(0)
+  attr_steel                   Int                            @default(0)
+  burden_duty                  Int                            @default(0)
+  burden_desire                Int                            @default(0)
+  connections                  String?
+  bonds                        String?
+  traits                       String?
+  abilities                    String?
+  equipment                    String?
+  avatars_mood                 avatars_mood[]
+  character_areas_of_expertise character_areas_of_expertise[]
+  character_dangers            character_dangers[]
+  character_devotions          character_devotions[]
+  character_resources          character_resources[]
+  character_skills             character_skills[]
+  game_session                 game_session                   @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                        users                          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model devotions {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  devotion_type       devotion_category
+  name                String                @db.VarChar
+  description         String?
+  rank                Int
+  track_counter       Int                   @default(0)
+  character_devotions character_devotions[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model game_session {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner_user_id     String              @db.Uuid
+  name              String              @db.VarChar
+  created_at        DateTime            @default(now()) @db.Timestamp(6)
+  updated_at        DateTime            @default(now()) @db.Timestamp(6)
+  characters        characters[]
+  users             users               @relation(fields: [owner_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  library_documents library_documents[]
+  messages          messages[]
+  session_player    session_player[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model library_documents {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_session_id    String            @db.Uuid
+  created_by_user_id String            @db.Uuid
+  category           document_category
+  title              String            @db.VarChar
+  file_type          String            @default("PDF") @db.VarChar
+  file_url           String            @db.VarChar
+  created_at         DateTime          @default(now()) @db.Timestamp(6)
+  updated_at         DateTime          @default(now()) @db.Timestamp(6)
+  users              users             @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  game_session       game_session      @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model messages {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_session_id String         @db.Uuid
+  is_gm_message   Boolean        @default(false)
+  author_user_id  String?        @db.Uuid
+  content         String
+  caption         String?
+  selected_mood   mood_category?
+  created_at      DateTime       @default(now()) @db.Timestamp(6)
+  users           users?         @relation(fields: [author_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  game_session    game_session   @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model resources {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String                @db.VarChar
+  description         String?
+  character_resources character_resources[]
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model session_player {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  game_session_id String       @db.Uuid
+  user_id         String       @db.Uuid
+  game_session    game_session @relation(fields: [game_session_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([game_session_id, user_id], map: "session_player_game_session_id_user_id_idx")
+}
+
+model users {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username          String              @db.VarChar
+  email             String              @unique @db.VarChar
+  password_hash     String              @db.VarChar
+  created_at        DateTime            @default(now()) @db.Timestamp(6)
+  characters        characters[]
+  game_session      game_session[]
+  library_documents library_documents[]
+  messages          messages[]
+  session_player    session_player[]
+}
+
+enum danger_type_category {
+  dishonor
+  scandal
+  stress
+  wounds
+}
+
+enum devotion_category {
+  duty
+  desire
+}
+
+enum document_category {
+  R_gles        @map("Règles")
+  Directives_MJ @map("Directives MJ")
+  Campagne
+  Lore
+}
+
+enum levels_category {
+  Casual
+  Veteran
+  Esoteric
+}
+
+enum mood_category {
+  neutral
+  happy
+  sad
+  angry
+  scared
+  surprised
+  determined
+  hurt
+  mocking
+  focus
+}
+
+enum pronouns_category {
+  He_him    @map("He/him")
+  She_her   @map("She/her")
+  They_them @map("They/them")
+}
+
+enum species_category {
+  Human
+  Dragon
+}

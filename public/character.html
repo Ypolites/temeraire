@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temeraire : Le JDR — Fiche de personnage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background-color: var(--ivory);
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8a06a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .page-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    /* ── Page Header ── */
+    .char-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .char-page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+    }
+
+    .char-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-save {
+      padding: 0.55rem 1.4rem;
+      background: var(--navy);
+      color: var(--ivory);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .btn-save:hover { background: var(--navy-light); }
+
+    /* ── Layout: 2 columns on desktop ── */
+    .char-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .char-full-col {
+      grid-column: 1 / -1;
+    }
+
+    /* ── Section Card override ── */
+    .section-card {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .title-ornament {
+      width: 4px;
+      height: 14px;
+      background: var(--gold);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    /* Fields */
+    .field-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .field-group label {
+      display: block;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      color: var(--navy);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(31,48,94,0.1);
+    }
+
+    .field-textarea { resize: vertical; min-height: 70px; }
+
+    .field-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231f305e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      padding-right: 2rem;
+      cursor: pointer;
+    }
+
+    /* ── Attribute block ── */
+    .attr-block {
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.9rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .attr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .attr-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .attr-level-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .attr-pip {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-dark);
+      background: var(--parchment);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .attr-pip.filled {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .attr-level-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-left: 0.25rem;
+    }
+
+    .skills-list {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .skill-name {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      color: var(--navy);
+      flex: 1;
+    }
+
+    .skill-select {
+      width: 150px;
+      padding: 0.3rem 0.6rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      color: var(--navy);
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%231f305e' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      padding-right: 1.6rem;
+      cursor: pointer;
+    }
+
+    /* ── Danger Track ── */
+    .danger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .danger-item {
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 0.9rem;
+    }
+
+    .danger-name {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .danger-level-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .danger-pip {
+      width: 18px;
+      height: 18px;
+      border-radius: 2px;
+      border: 1.5px solid var(--border-dark);
+      background: var(--parchment);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      color: var(--ivory);
+    }
+
+    .danger-pip.filled {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .danger-pip.filled::after { content: '✕'; }
+
+    .danger-level-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-left: 0.2rem;
+    }
+
+    .danger-track-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .danger-track-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.65rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .track-checkbox {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--navy);
+      cursor: pointer;
+    }
+
+    /* ── Devotions ── */
+    .devotion-counter {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .devotion-counter strong {
+      color: var(--navy);
+    }
+
+    .devotion-section-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      margin-bottom: 0.5rem;
+      margin-top: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .devotion-section-label::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 10px;
+      background: var(--gold);
+      border-radius: 1px;
+    }
+
+    .devotion-item {
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .devotion-row1 {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .devotion-rank-select {
+      width: 70px;
+      padding: 0.3rem 0.5rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      color: var(--navy);
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .devotion-desc {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.3rem 0.6rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      color: var(--navy);
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .devotion-row2 {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .devotion-checkboxes {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .devotion-cb {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--gold-dark);
+      cursor: pointer;
+    }
+
+    .devotion-renounce {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .devotion-renounce input {
+      accent-color: var(--danger);
+      cursor: pointer;
+    }
+
+    /* ── Areas of Expertise ── */
+    .expertise-list {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .expertise-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .expertise-label-input {
+      flex: 1;
+      padding: 0.4rem 0.65rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.83rem;
+      color: var(--navy);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .expertise-rank-select {
+      width: 190px;
+      padding: 0.4rem 0.65rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      color: var(--navy);
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%231f305e' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      padding-right: 1.6rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ── Carried Resources ── */
+    .resource-item {
+      background: var(--ivory);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .resource-row1 {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .resource-name {
+      flex: 1;
+    }
+
+    .resource-uses {
+      width: 80px;
+    }
+
+    .resource-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── Avatar Moods Upload ── */
+    .mood-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.6rem;
+    }
+
+    .mood-upload-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .mood-upload-thumb {
+      width: 56px;
+      height: 56px;
+      border-radius: 4px;
+      border: 2px dashed var(--border-dark);
+      background: var(--ivory);
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .mood-upload-thumb:hover {
+      border-color: var(--gold);
+      background: var(--parchment-dark);
+    }
+
+    .mood-upload-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .mood-upload-thumb input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .mood-upload-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ── Sync bar ── */
+    .char-sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.4rem 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .char-layout {
+        grid-template-columns: 1fr;
+      }
+      .char-full-col {
+        grid-column: 1;
+      }
+      .danger-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .mood-upload-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+      .expertise-rank-select {
+        width: 130px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .danger-grid {
+        grid-template-columns: 1fr;
+      }
+      .mood-upload-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+      .skill-select {
+        width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="app-nav">
+    <div class="nav-brand">⚓ <span>Temeraire <span class="brand-accent">·</span> JDR</span></div>
+    <div class="nav-links">
+      <a href="chat.html" class="nav-link">Salon</a>
+      <a href="character.html" class="nav-link active">Personnage</a>
+      <a href="library.html" class="nav-link">Bibliothèque</a>
+    </div>
+    <div class="nav-user" id="navUser"></div>
+  </nav>
+
+  <div class="page-content">
+
+    <!-- Page header -->
+    <div class="char-page-header">
+      <h1>Fiche de personnage</h1>
+      <div class="char-header-actions">
+        <div id="syncBadge" class="sync-badge synced"><span class="dot"></span>Synchronisé</div>
+        <button class="btn-save" id="saveBtn">Sauvegarder</button>
+      </div>
+    </div>
+
+    <div class="char-sync-bar" id="syncBar"></div>
+
+    <div class="char-layout" id="charLayout">
+
+      <!-- ══ IDENTITÉ ══ -->
+      <div class="section-card char-full-col">
+        <div class="section-title"><div class="title-ornament"></div>Identité</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.25rem;">
+          <div class="field-group">
+            <label for="charName">Nom</label>
+            <input type="text" id="charName" class="field-input" placeholder="Capitaine William Laurence" />
+          </div>
+          <div class="field-group">
+            <label for="charSpecies">Espèce</label>
+            <select id="charSpecies" class="field-select">
+              <option value="Humain">Humain</option>
+              <option value="Dragon">Dragon</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="charPronoms">Pronoms</label>
+            <input type="text" id="charPronoms" class="field-input" placeholder="il/lui" />
+          </div>
+          <div class="field-group">
+            <label for="charPoste">Poste</label>
+            <input type="text" id="charPoste" class="field-input" placeholder="Capitaine de dragon" />
+          </div>
+          <div class="field-group">
+            <label for="charNationalite">Nationalité</label>
+            <input type="text" id="charNationalite" class="field-input" placeholder="Britannique" />
+          </div>
+          <div class="field-group">
+            <label for="charEtatService">États de service</label>
+            <input type="text" id="charEtatService" class="field-input" placeholder="Ancienne marine royale, Corps Aérien" />
+          </div>
+          <div class="field-group">
+            <label for="charReputation">Réputation / Station</label>
+            <input type="text" id="charReputation" class="field-input" placeholder="Officier respecté, controversé" />
+          </div>
+          <div class="field-group">
+            <label for="charTemperament">Tempérament</label>
+            <input type="text" id="charTemperament" class="field-input" placeholder="Honorable, méthodique" />
+          </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label for="charApparence">Apparence</label>
+            <textarea id="charApparence" class="field-textarea" placeholder="Description physique du personnage…" rows="3"></textarea>
+          </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label for="charDistinctions">Distinctions</label>
+            <textarea id="charDistinctions" class="field-textarea" placeholder="Médailles, titres, marques particulières…" rows="2"></textarea>
+          </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label for="charCaracteristiques">Caractéristiques</label>
+            <textarea id="charCaracteristiques" class="field-textarea" placeholder="Traits notables, habitudes, particularités…" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ATTRIBUTS & COMPÉTENCES ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Attributs &amp; Compétences</div>
+
+        <!-- Corps -->
+        <div class="attr-block">
+          <div class="attr-header">
+            <div class="attr-name">Corps</div>
+            <div class="attr-level-row" id="attr-corps-pips"></div>
+          </div>
+          <div class="skills-list">
+            <div class="skill-row">
+              <span class="skill-name">Agilité</span>
+              <select class="skill-select" id="skill-corps-agilite">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Force</span>
+              <select class="skill-select" id="skill-corps-force">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Létalité</span>
+              <select class="skill-select" id="skill-corps-letalite">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ruse -->
+        <div class="attr-block">
+          <div class="attr-header">
+            <div class="attr-name">Ruse</div>
+            <div class="attr-level-row" id="attr-ruse-pips"></div>
+          </div>
+          <div class="skills-list">
+            <div class="skill-row">
+              <span class="skill-name">Attention</span>
+              <select class="skill-select" id="skill-ruse-attention">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Ruse</span>
+              <select class="skill-select" id="skill-ruse-ruse">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Intuition</span>
+              <select class="skill-select" id="skill-ruse-intuition">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manières -->
+        <div class="attr-block">
+          <div class="attr-header">
+            <div class="attr-name">Manières</div>
+            <div class="attr-level-row" id="attr-manieres-pips"></div>
+          </div>
+          <div class="skills-list">
+            <div class="skill-row">
+              <span class="skill-name">Représentation</span>
+              <select class="skill-select" id="skill-manieres-representation">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Persuasion</span>
+              <select class="skill-select" id="skill-manieres-persuasion">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Bienséance</span>
+              <select class="skill-select" id="skill-manieres-bienséance">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sang-froid -->
+        <div class="attr-block" style="margin-bottom:0">
+          <div class="attr-header">
+            <div class="attr-name">Sang-froid</div>
+            <div class="attr-level-row" id="attr-sangfroid-pips"></div>
+          </div>
+          <div class="skills-list">
+            <div class="skill-row">
+              <span class="skill-name">Contrainte</span>
+              <select class="skill-select" id="skill-sangfroid-contrainte">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Direction</span>
+              <select class="skill-select" id="skill-sangfroid-direction">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+            <div class="skill-row">
+              <span class="skill-name">Endurance</span>
+              <select class="skill-select" id="skill-sangfroid-endurance">
+                <option value="">—</option>
+                <option>Entraîné</option><option>Adepte</option><option>Maître</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DANGERS ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Dangers</div>
+
+        <div class="danger-grid">
+          <!-- Déshonneur -->
+          <div class="danger-item">
+            <div class="danger-name">Déshonneur</div>
+            <div class="danger-level-row" id="danger-deshonneur-pips"></div>
+            <div class="danger-track-row">
+              <span class="danger-track-label">Suivi :</span>
+              <input type="checkbox" class="track-checkbox" id="dk-d1" />
+              <input type="checkbox" class="track-checkbox" id="dk-d2" />
+              <input type="checkbox" class="track-checkbox" id="dk-d3" />
+            </div>
+          </div>
+          <!-- Scandale -->
+          <div class="danger-item">
+            <div class="danger-name">Scandale</div>
+            <div class="danger-level-row" id="danger-scandale-pips"></div>
+            <div class="danger-track-row">
+              <span class="danger-track-label">Suivi :</span>
+              <input type="checkbox" class="track-checkbox" id="dk-s1" />
+              <input type="checkbox" class="track-checkbox" id="dk-s2" />
+              <input type="checkbox" class="track-checkbox" id="dk-s3" />
+              <input type="checkbox" class="track-checkbox" id="dk-s4" />
+            </div>
+          </div>
+          <!-- Stress -->
+          <div class="danger-item">
+            <div class="danger-name">Stress</div>
+            <div class="danger-level-row" id="danger-stress-pips"></div>
+            <div class="danger-track-row">
+              <span class="danger-track-label">Suivi :</span>
+              <input type="checkbox" class="track-checkbox" id="dk-st1" />
+              <input type="checkbox" class="track-checkbox" id="dk-st2" />
+              <input type="checkbox" class="track-checkbox" id="dk-st3" />
+            </div>
+          </div>
+          <!-- Blessures -->
+          <div class="danger-item">
+            <div class="danger-name">Blessures</div>
+            <div class="danger-level-row" id="danger-blessures-pips"></div>
+            <div class="danger-track-row">
+              <span class="danger-track-label">Suivi :</span>
+              <input type="checkbox" class="track-checkbox" id="dk-b1" />
+              <input type="checkbox" class="track-checkbox" id="dk-b2" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DÉVOTIONS ══ -->
+      <div class="section-card char-full-col">
+        <div class="section-title"><div class="title-ornament"></div>Dévotions</div>
+
+        <div class="devotion-counter">
+          Total des rangs : <strong id="devotionTotal">0</strong> / 10
+          &nbsp;&nbsp;
+          <span id="devotionWarning" style="color:var(--danger);display:none">⚠ Limite de 10 atteinte</span>
+        </div>
+
+        <!-- Devoirs -->
+        <div class="devotion-section-label">Devoirs</div>
+        <div id="devotionDutiesList"></div>
+
+        <!-- Désirs -->
+        <div class="devotion-section-label">Désirs</div>
+        <div id="devotionDesiresList"></div>
+      </div>
+
+      <!-- ══ DOMAINES D'EXPERTISE ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Domaines d'expertise</div>
+
+        <div class="expertise-list" id="expertiseList"></div>
+      </div>
+
+      <!-- ══ RESSOURCES EMPORTÉES ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Ressources emportées</div>
+        <div id="resourcesList"></div>
+      </div>
+
+      <!-- ══ SECTIONS LIBRES ══ -->
+      <div class="section-card char-full-col">
+        <div class="section-title"><div class="title-ornament"></div>Notes &amp; Relations</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.25rem;">
+          <div class="field-group">
+            <label for="freeRelations">Relations</label>
+            <textarea id="freeRelations" class="field-textarea" placeholder="Personnes importantes pour le personnage…" rows="4"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="freeLiens">Liens</label>
+            <textarea id="freeLiens" class="field-textarea" placeholder="Liens forts, obligations, dettes…" rows="4"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="freeTraits">Traits</label>
+            <textarea id="freeTraits" class="field-textarea" placeholder="Traits de caractère, vertus, défauts…" rows="4"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="freeCapacites">Capacités</label>
+            <textarea id="freeCapacites" class="field-textarea" placeholder="Capacités spéciales, aptitudes…" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ÉQUIPEMENT ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Équipement</div>
+        <div class="field-group">
+          <label for="equipment">Liste d'équipements</label>
+          <textarea id="equipment" class="field-textarea" placeholder="Sabre de cavalerie&#10;Longue-vue&#10;Carnet de navigation…" rows="6"></textarea>
+        </div>
+      </div>
+
+      <!-- ══ AVATARS / HUMEURS ══ -->
+      <div class="section-card">
+        <div class="section-title"><div class="title-ornament"></div>Avatars par humeur</div>
+        <div class="mood-upload-grid" id="moodUploadGrid"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    /* ══════════════════════════════════════════════════════
+       character.js — inline script for character.html
+       ══════════════════════════════════════════════════════ */
+
+    const cu = sessionStorage.getItem('currentUser');
+    if (cu) document.getElementById('navUser').textContent = cu;
+
+    // ── Attribute pip builders ──
+    const ATTR_IDS = ['corps', 'ruse', 'manieres', 'sangfroid'];
+
+    ATTR_IDS.forEach(id => {
+      const container = document.getElementById(`attr-${id}-pips`);
+      let val = 0;
+      for (let i = 1; i <= 4; i++) {
+        const pip = document.createElement('div');
+        pip.className = 'attr-pip' + (i <= val ? ' filled' : '');
+        pip.title = `Niveau ${i}`;
+        pip.addEventListener('click', () => {
+          val = (val === i) ? i - 1 : i;
+          container.querySelectorAll('.attr-pip').forEach((p, idx) => {
+            p.classList.toggle('filled', idx < val);
+          });
+          triggerPendingSync();
+        });
+        container.appendChild(pip);
+      }
+      const lbl = document.createElement('span');
+      lbl.className = 'attr-level-label';
+      lbl.id = `attr-${id}-lbl`;
+      lbl.textContent = '0/4';
+      container.appendChild(lbl);
+    });
+
+    // ── Danger pip builders ──
+    ['deshonneur', 'scandale', 'stress', 'blessures'].forEach(id => {
+      const container = document.getElementById(`danger-${id}-pips`);
+      let val = 0;
+      for (let i = 1; i <= 8; i++) {
+        const pip = document.createElement('div');
+        pip.className = 'danger-pip' + (i <= val ? ' filled' : '');
+        pip.title = `Niveau ${i}`;
+        pip.addEventListener('click', () => {
+          val = (val === i) ? i - 1 : i;
+          container.querySelectorAll('.danger-pip').forEach((p, idx) => {
+            p.classList.toggle('filled', idx < val);
+          });
+          triggerPendingSync();
+        });
+        container.appendChild(pip);
+      }
+      const lbl = document.createElement('span');
+      lbl.className = 'danger-level-label';
+      lbl.textContent = '0/8';
+      container.appendChild(lbl);
+    });
+
+    // ── Devotions ──
+    let devotionItems = { duties: [], desires: [] };
+    let devotionTotalRank = 0;
+
+    function makeDevotion(type, index) {
+      const item = document.createElement('div');
+      item.className = 'devotion-item';
+      item.id = `dev-${type}-${index}`;
+
+      item.innerHTML = `
+        <div class="devotion-row1">
+          <select class="devotion-rank-select" id="devRank-${type}-${index}" title="Rang">
+            <option value="0">Rang 0</option>
+            <option value="1">Rang 1</option>
+            <option value="2">Rang 2</option>
+            <option value="3">Rang 3</option>
+            <option value="4">Rang 4</option>
+            <option value="5">Rang 5</option>
+          </select>
+          <input type="text" class="devotion-desc field-input" id="devDesc-${type}-${index}" placeholder="Description de la dévotion…" />
+        </div>
+        <div class="devotion-row2" id="devRow2-${type}-${index}">
+          <div class="devotion-checkboxes" id="devCB-${type}-${index}"></div>
+          <label class="devotion-renounce">
+            <input type="checkbox" id="devRenounce-${type}-${index}" />
+            Renoncé ?
+          </label>
+        </div>
+      `;
+
+      const rankSel = item.querySelector(`#devRank-${type}-${index}`);
+      rankSel.addEventListener('change', () => {
+        updateDevotionCheckboxes(type, index, parseInt(rankSel.value));
+        recalcDevotionTotal();
+        triggerPendingSync();
+      });
+
+      return item;
+    }
+
+    function updateDevotionCheckboxes(type, index, rank) {
+      const container = document.getElementById(`devCB-${type}-${index}`);
+      container.innerHTML = '';
+      for (let i = 0; i < rank; i++) {
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'devotion-cb';
+        cb.title = `Case ${i + 1}`;
+        container.appendChild(cb);
+      }
+    }
+
+    function recalcDevotionTotal() {
+      let total = 0;
+      document.querySelectorAll('.devotion-rank-select').forEach(sel => {
+        total += parseInt(sel.value) || 0;
+      });
+      devotionTotalRank = total;
+      document.getElementById('devotionTotal').textContent = total;
+      const warn = document.getElementById('devotionWarning');
+      warn.style.display = total >= 10 ? 'inline' : 'none';
+    }
+
+    // Build 5 duties + 5 desires
+    const dutiesList = document.getElementById('devotionDutiesList');
+    const desiresList = document.getElementById('devotionDesiresList');
+    for (let i = 0; i < 5; i++) {
+      dutiesList.appendChild(makeDevotion('duty', i));
+      desiresList.appendChild(makeDevotion('desire', i));
+    }
+
+    // ── Areas of Expertise (10 rows) ──
+    const expertiseList = document.getElementById('expertiseList');
+    for (let i = 0; i < 10; i++) {
+      const row = document.createElement('div');
+      row.className = 'expertise-row';
+      row.innerHTML = `
+        <input type="text" class="expertise-label-input" id="exp-label-${i}" placeholder="Domaine d'expertise ${i + 1}" />
+        <select class="expertise-rank-select" id="exp-rank-${i}">
+          <option value="">— Niveau —</option>
+          <option>Expertise occasionnelle</option>
+          <option>Expertise vétéran</option>
+          <option>Expertise ésotérique</option>
+        </select>
+      `;
+      expertiseList.appendChild(row);
+    }
+
+    // ── Carried Resources (6 entries) ──
+    const resourcesList = document.getElementById('resourcesList');
+    for (let i = 0; i < 6; i++) {
+      const item = document.createElement('div');
+      item.className = 'resource-item';
+      item.innerHTML = `
+        <div class="resource-row1">
+          <div style="flex:1">
+            <div class="resource-label">Nom</div>
+            <input type="text" class="field-input resource-name" id="res-name-${i}" placeholder="Nom de la ressource" />
+          </div>
+          <div>
+            <div class="resource-label">Utilisations</div>
+            <input type="number" class="field-input resource-uses" id="res-uses-${i}" min="0" value="0" style="width:80px" />
+          </div>
+        </div>
+        <div>
+          <div class="resource-label">Fonction / description</div>
+          <input type="text" class="field-input" id="res-desc-${i}" placeholder="Description ou utilité…" />
+        </div>
+      `;
+      resourcesList.appendChild(item);
+    }
+
+    // ── Avatar mood upload (10 slots) ──
+    const MOODS = [
+      { label: 'Neutre',      emoji: '😐' },
+      { label: 'Heureux·se',  emoji: '😊' },
+      { label: 'Triste',      emoji: '😢' },
+      { label: 'En colère',   emoji: '😠' },
+      { label: 'Effrayé·e',   emoji: '😨' },
+      { label: 'Surpris·e',   emoji: '😲' },
+      { label: 'Déterminé·e', emoji: '😤' },
+      { label: 'Blessé·e',    emoji: '🤕' },
+      { label: 'Moqueur·se',  emoji: '😏' },
+      { label: 'Concentré·e', emoji: '🧐' },
+    ];
+
+    const moodUploadGrid = document.getElementById('moodUploadGrid');
+    MOODS.forEach((m, i) => {
+      const item = document.createElement('div');
+      item.className = 'mood-upload-item';
+
+      const thumb = document.createElement('div');
+      thumb.className = 'mood-upload-thumb';
+      thumb.id = `moodThumb-${i}`;
+      thumb.innerHTML = m.emoji;
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.title = `Uploader avatar : ${m.label}`;
+      fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          thumb.innerHTML = `<img src="${e.target.result}" alt="${m.label}" /><input type="file" accept="image/*" title="${m.label}" />`;
+          thumb.querySelector('input').addEventListener('change', fileInput.onchange);
+          triggerPendingSync();
+        };
+        reader.readAsDataURL(file);
+      });
+      thumb.appendChild(fileInput);
+
+      const lbl = document.createElement('div');
+      lbl.className = 'mood-upload-label';
+      lbl.textContent = m.label;
+
+      item.appendChild(thumb);
+      item.appendChild(lbl);
+      moodUploadGrid.appendChild(item);
+    });
+
+    // ── Sync simulation ──
+    let syncTimer = null;
+    const syncBadge = document.getElementById('syncBadge');
+
+    function triggerPendingSync() {
+      syncBadge.className = 'sync-badge pending';
+      syncBadge.innerHTML = '<span class="dot"></span>En attente…';
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        syncBadge.className = 'sync-badge synced';
+        syncBadge.innerHTML = '<span class="dot"></span>Synchronisé';
+      }, 1800);
+    }
+
+    // Attach triggerPendingSync to all inputs
+    document.querySelectorAll('input:not([type="file"]):not([type="checkbox"]), select, textarea').forEach(el => {
+      el.addEventListener('input', triggerPendingSync);
+      el.addEventListener('change', triggerPendingSync);
+    });
+    document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+      el.addEventListener('change', triggerPendingSync);
+    });
+
+    // ── Save button ──
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      syncBadge.className = 'sync-badge pending';
+      syncBadge.innerHTML = '<span class="dot"></span>Sauvegarde…';
+      setTimeout(() => {
+        syncBadge.className = 'sync-badge synced';
+        syncBadge.innerHTML = '<span class="dot"></span>Synchronisé';
+      }, 1000);
+    });
+
+    // ── Simulate failed sync on page idle ──
+    let failTimer = setTimeout(() => {
+      // Only if user hasn't interacted
+    }, 999999);
+  </script>
+</body>
+</html>
