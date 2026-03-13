@@ -5,6 +5,7 @@
  * sans dépendre d'un provider externe.
  */
 const llm = require("../lib/llm");
+const prisma = require("../lib/prisma");
 const { buildLimitedHistoryMessages } = require("../lib/llmHistory");
 
 /**
@@ -28,11 +29,65 @@ const testLLM = async (req, res) => {
     "Cette route est uniquement utilisée pour tester l'intégration.";
 
   try {
-    const reply = await llm.sendMessage(messages, systemPrompt);
+    // 1) Construire l'historique limité pour cette session (si fournie)
+    const {
+      messages,
+      summaryTriggered,
+    } = await buildLimitedHistoryMessages(
+      sessionId || null,
+      userContent,
+      systemPrompt
+    );
+
+    // 2) Appeler l'adapter LLM (mock ou futur Claude)
+    const { text, usage } = await llm.sendMessage(
+      messages,
+      systemPrompt,
+      sessionId || null
+    );
+
+    // 3) Logger l'usage des tokens si on a une session de jeu
+    if (sessionId && usage) {
+      const inputTokens = usage.input_tokens ?? 0;
+      const outputTokens = usage.output_tokens ?? 0;
+      const cacheCreationTokens =
+        usage.cache_creation_tokens ??
+        usage.cache_creation_input_tokens ??
+        0;
+      const cacheReadTokens =
+        usage.cache_read_tokens ?? usage.cache_read_input_tokens ?? 0;
+
+      const totalBilledTokens =
+        inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens;
+
+      try {
+        await prisma.tokenUsage.create({
+          data: {
+            session_id: sessionId,
+            author: "gm",
+            input_tokens: inputTokens,
+            output_tokens: outputTokens,
+            cache_creation_tokens: cacheCreationTokens,
+            cache_read_tokens: cacheReadTokens,
+            total_billed_tokens: totalBilledTokens,
+            summary_triggered: !!summaryTriggered,
+          },
+        });
+      } catch (logError) {
+        // On loggue mais on ne bloque pas la réponse au client
+        console.error(
+          "[llm.controller] Erreur lors de la création de TokenUsage:",
+          logError
+        );
+      }
+    }
+
     return res.status(200).json({
       success: true,
       provider: process.env.LLM_PROVIDER || "mock",
-      reply,
+      reply: text,
+      usage,
+      summaryTriggered,
     });
   } catch (error) {
     console.error("[llm.controller] testLLM error:", error);

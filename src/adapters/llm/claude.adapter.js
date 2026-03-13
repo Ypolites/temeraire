@@ -1,42 +1,43 @@
 /**
  * Claude Adapter
  *
- * Implements LLMInterface using Anthropic's Claude API.
- * Includes two token-saving strategies:
- *   1. Sliding window  — only the last N messages are sent
- *   2. Prompt caching  — system prompt is cached for 5 minutes (up to -90% cost)
+ * Implémente LLMInterface pour Anthropic Claude.
+ *
+ * ⚠️ Important :
+ * - Aucune requête réelle n'est effectuée tant que l'API Claude n'est pas
+ *   configurée. Cet adapter existe principalement pour préparer l'intégration
+ *   future (prompt caching, usage détaillé, etc.).
  */
 
-const Anthropic = require("@anthropic-ai/sdk");
+// TODO: brancher réellement le SDK Anthropic et le prompt caching
+// const Anthropic = require("@anthropic-ai/sdk");
 const LLMInterface = require("./llm.interface");
 
 class ClaudeAdapter extends LLMInterface {
   constructor() {
     super();
-    this.client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
     this.model = process.env.LLM_MODEL || "claude-sonnet-4-5";
   }
 
   /**
    * Send a conversation to Claude and get a response.
    *
-   * @param {Array<{role: "user"|"assistant", content: string}>} messages
-   *   Full conversation history. Will be trimmed to MAX_HISTORY_MESSAGES.
+   * Pour le moment, l'intégration réelle avec l'API Anthropic n'est pas
+   * activée : on lève une erreur explicite afin d'éviter toute confusion.
+   * L'application est pensée pour tourner avec LLM_PROVIDER="mock" tant que
+   * l'abonnement Claude n'est pas souscrit.
    *
+   * @param {Array<{role: "user"|"assistant", content: string}>} messages
    * @param {string} systemPrompt
-   * @returns {Promise<string>}
+   * @param {string|null} sessionId
+   * @returns {Promise<{ text: string, usage: any, summaryTriggered: boolean }>}
    */
-  async sendMessage(messages, systemPrompt) {
-    const response = await this.client.messages.create({
-      model: this.model,
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages,
-    });
-
-    return response.content[0].text;
+  async sendMessage(messages, systemPrompt, sessionId = null) {
+    throw new Error(
+      '[ClaudeAdapter] LLM_PROVIDER="claude" sélectionné mais ' +
+        "l'intégration API Anthropic n'est pas encore implémentée. " +
+        'Utilise LLM_PROVIDER="mock" tant que Claude n’est pas configuré.'
+    );
   }
 }
 
