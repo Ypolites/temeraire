@@ -28,47 +28,11 @@ const testLLM = async (req, res) => {
     "Cette route est uniquement utilisée pour tester l'intégration.";
 
   try {
-    let messages;
-    let summaryTriggered = false;
-
-    // Si une session est fournie, on reconstruit l'historique
-    // et on le tronque en fonction d'un budget approximatif de tokens.
-    if (sessionId) {
-      const historyResult = await buildLimitedHistoryMessages(
-        sessionId,
-        userContent,
-        systemPrompt
-      );
-      messages = historyResult.messages;
-      summaryTriggered = historyResult.summaryTriggered;
-    } else {
-      messages = [
-        {
-          role: "user",
-          content: userContent,
-        },
-      ];
-    }
-
-    // sessionId est optionnel — s'il est absent, le log BDD est ignoré
-    // et seul le log console est produit (comportement défini dans claude.adapter.js)
-    const { text, usage } = await llm.sendMessage(
-      messages,
-      systemPrompt,
-      sessionId || null
-    );
-
+    const reply = await llm.sendMessage(messages, systemPrompt);
     return res.status(200).json({
       success: true,
       provider: process.env.LLM_PROVIDER || "mock",
-      reply: text,
-      usage: {
-        input_tokens:   usage.input_tokens,
-        output_tokens:  usage.output_tokens,
-        cache_created:  usage.cache_creation_input_tokens ?? 0,
-        cache_read:     usage.cache_read_input_tokens ?? 0,
-      },
-      summary_triggered: summaryTriggered,
+      reply,
     });
   } catch (error) {
     console.error("[llm.controller] testLLM error:", error);
@@ -80,3 +44,4 @@ const testLLM = async (req, res) => {
 };
 
 module.exports = { testLLM };
+
