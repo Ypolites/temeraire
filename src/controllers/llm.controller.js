@@ -4,29 +4,23 @@
  * Expose une route simple pour tester le pipeline LLM
  * sans dépendre d'un provider externe.
  */
-
 const llm = require("../lib/llm");
+const { buildLimitedHistoryMessages } = require("../lib/llmHistory");
 
 /**
  * POST /llm/test
  *
  * Body:
- * - message?: string
+ * - message?:   string
+ * - sessionId?: string  — UUID d'une GameSession (optionnel, pour tester le log)
  */
 const testLLM = async (req, res) => {
-  const { message } = req.body || {};
+  const { message, sessionId } = req.body || {};
 
   const userContent =
     typeof message === "string" && message.trim().length > 0
       ? message.trim()
       : "Le joueur se prépare pour une nouvelle scène de test.";
-
-  const messages = [
-    {
-      role: "user",
-      content: userContent,
-    },
-  ];
 
   const systemPrompt =
     "Tu es un Maître de Jeu pour Temeraire: Le JDR. " +
@@ -34,11 +28,47 @@ const testLLM = async (req, res) => {
     "Cette route est uniquement utilisée pour tester l'intégration.";
 
   try {
-    const reply = await llm.sendMessage(messages, systemPrompt);
+    let messages;
+    let summaryTriggered = false;
+
+    // Si une session est fournie, on reconstruit l'historique
+    // et on le tronque en fonction d'un budget approximatif de tokens.
+    if (sessionId) {
+      const historyResult = await buildLimitedHistoryMessages(
+        sessionId,
+        userContent,
+        systemPrompt
+      );
+      messages = historyResult.messages;
+      summaryTriggered = historyResult.summaryTriggered;
+    } else {
+      messages = [
+        {
+          role: "user",
+          content: userContent,
+        },
+      ];
+    }
+
+    // sessionId est optionnel — s'il est absent, le log BDD est ignoré
+    // et seul le log console est produit (comportement défini dans claude.adapter.js)
+    const { text, usage } = await llm.sendMessage(
+      messages,
+      systemPrompt,
+      sessionId || null
+    );
+
     return res.status(200).json({
       success: true,
       provider: process.env.LLM_PROVIDER || "mock",
-      reply,
+      reply: text,
+      usage: {
+        input_tokens:   usage.input_tokens,
+        output_tokens:  usage.output_tokens,
+        cache_created:  usage.cache_creation_input_tokens ?? 0,
+        cache_read:     usage.cache_read_input_tokens ?? 0,
+      },
+      summary_triggered: summaryTriggered,
     });
   } catch (error) {
     console.error("[llm.controller] testLLM error:", error);
@@ -50,4 +80,3 @@ const testLLM = async (req, res) => {
 };
 
 module.exports = { testLLM };
-

@@ -11,9 +11,10 @@ class LLMInterface {
      *
      * @param {Array<{role: "user"|"assistant", content: string}>} messages
      * @param {string} systemPrompt - Instructions for the AI Game Master
-     * @returns {Promise<string>} - The AI response text
+     * @param {string|null} [sessionId] - Optional GameSession identifier for logging
+     * @returns {Promise<{ text: string, usage: any, summaryTriggered: boolean }>}
      */
-    async sendMessage(messages, systemPrompt) {
+    async sendMessage(messages, systemPrompt, sessionId = null) {
       throw new Error("sendMessage() must be implemented by a concrete adapter");
     }
   }

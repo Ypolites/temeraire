@@ -33,6 +33,7 @@ model GameSession {
   libraryDocuments LibraryDocument[]
   messages         Message[]
   sessionPlayers   SessionPlayer[]
+  tokenUsages      TokenUsage[]
 
   @@map("game_session")
 }
@@ -216,6 +217,25 @@ model AvatarMood {
 
   @@map("avatars_mood")
 }
+
+model TokenUsage {
+  id                    Int         @id @default(autoincrement())
+  session_id            String      @db.Uuid
+  author                String      @default("gm") @db.VarChar
+  input_tokens          Int
+  output_tokens         Int
+  cache_creation_tokens Int         @default(0)
+  cache_read_tokens     Int         @default(0)
+  total_billed_tokens   Int
+  summary_triggered     Boolean     @default(false)
+  created_at            DateTime    @default(now()) @db.Timestamp(6)
+
+  session               GameSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@map("token_usage")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum danger_type_category {
   dishonor

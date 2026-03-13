@@ -17,9 +17,10 @@ class MockLLMAdapter extends LLMInterface {
    *
    * @param {Array<{role: "user"|"assistant", content: string}>} messages
    * @param {string} systemPrompt
-   * @returns {Promise<string>}
+   * @param {string|null} sessionId
+   * @returns {Promise<{ text: string, usage: any, summaryTriggered: boolean }>}
    */
-  async sendMessage(messages, systemPrompt) {
+  async sendMessage(messages, systemPrompt, sessionId = null) {
     const lastUserMessage =
       [...messages].reverse().find((m) => m.role === "user")?.content ??
       "Aucun message joueur.";
@@ -29,7 +30,7 @@ class MockLLMAdapter extends LLMInterface {
         ? lastUserMessage.slice(0, 240) + "…"
         : lastUserMessage;
 
-    return [
+    const text = [
       "⟡ [MOCK LLM] — Réponse simulée du Maître de Jeu.",
       "",
       "Je n'appelle pas de véritable API LLM.",
@@ -39,6 +40,20 @@ class MockLLMAdapter extends LLMInterface {
       "Dernier message joueur reçu :",
       `« ${preview} »`,
     ].join("\n");
+
+    // Valeurs factices mais cohérentes avec ce qu'attend le contrôleur
+    const usage = {
+      input_tokens: 0,
+      output_tokens: 0,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+    };
+
+    return {
+      text,
+      usage,
+      summaryTriggered: false,
+    };
   }
 }
 
