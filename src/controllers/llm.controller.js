@@ -4,7 +4,6 @@
  * Expose une route simple pour tester le pipeline LLM
  * sans dépendre d'un provider externe.
  */
-
 const llm = require("../lib/llm");
 
 /**
@@ -34,11 +33,24 @@ const testLLM = async (req, res) => {
     "Cette route est uniquement utilisée pour tester l'intégration.";
 
   try {
-    const reply = await llm.sendMessage(messages, systemPrompt);
+    // ── Changement ici ────────────────────────────────────────────────────
+    // sendMessage retourne maintenant { text, usage } et non plus une string.
+    // On destructure pour récupérer les deux valeurs séparément.
+    const { text, usage } = await llm.sendMessage(messages, systemPrompt);
+
     return res.status(200).json({
       success: true,
       provider: process.env.LLM_PROVIDER || "mock",
-      reply,
+      reply: text,
+      // On expose usage dans la réponse API — utile pendant le développement
+      // pour vérifier la consommation sans aller chercher dans les logs.
+      // Tu pourras le retirer (ou le masquer) en production.
+      usage: {
+        input_tokens: usage.input_tokens,
+        output_tokens: usage.output_tokens,
+        cache_created: usage.cache_creation_input_tokens ?? 0,
+        cache_read: usage.cache_read_input_tokens ?? 0,
+      },
     });
   } catch (error) {
     console.error("[llm.controller] testLLM error:", error);
@@ -50,4 +62,3 @@ const testLLM = async (req, res) => {
 };
 
 module.exports = { testLLM };
-
