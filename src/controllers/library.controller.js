@@ -1,29 +1,12 @@
-/**
- * Library Document Controller
- *
- * Handles upload, listing and deletion of library documents.
- * Accepts PDF and common text/document formats.
- */
-const path = require("path");
-const fs = require("fs");
 const prisma = require("../lib/prisma");
-
-const DOCS_DIR = path.join(__dirname, "../../public/uploads/documents");
 
 /**
  * POST /sessions/:id/documents
- * Uploads a document to the session library.
+ * Creates a markdown-based library entry for the session.
  */
 const uploadDocument = async (req, res) => {
   const { id: gameSessionId } = req.params;
-  const { title, category } = req.body;
-
-  if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      errors: ["Aucun fichier reçu."],
-    });
-  }
+  const { title, category, content } = req.body;
 
   try {
     const session = await prisma.gameSession.findUnique({
@@ -31,7 +14,6 @@ const uploadDocument = async (req, res) => {
     });
 
     if (!session) {
-      fs.unlinkSync(req.file.path);
       return res.status(404).json({
         success: false,
         errors: ["Session introuvable."],
@@ -39,32 +21,28 @@ const uploadDocument = async (req, res) => {
     }
 
     if (session.ownerUserId !== req.user.userId) {
-      fs.unlinkSync(req.file.path);
       return res.status(403).json({
         success: false,
         errors: ["Accès refusé."],
       });
     }
 
-    const fileUrl = `/uploads/documents/${req.file.filename}`;
-    const fileType = path.extname(req.file.originalname).replace(".", "").toUpperCase();
-
+    // For the simplified v1, we store markdown content instead of a physical file.
     const document = await prisma.libraryDocument.create({
       data: {
         gameSessionId,
         createdByUserId: req.user.userId,
         title,
         category,
-        fileType,
-        fileUrl,
+        content: content || "",
+        // Legacy file metadata kept for backward compatibility, but not used for new entries.
+        fileType: "MD",
+        fileUrl: "",
       },
     });
 
     return res.status(201).json({ success: true, document });
   } catch (error) {
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     console.error("[library.controller] uploadDocument error:", error);
     return res.status(500).json({
       success: false,
@@ -116,7 +94,7 @@ const getDocuments = async (req, res) => {
 
 /**
  * DELETE /sessions/:id/documents/:docId
- * Deletes a document (file + database record).
+ * Deletes a document record.
  */
 const deleteDocument = async (req, res) => {
   const { id: gameSessionId, docId } = req.params;
@@ -149,14 +127,6 @@ const deleteDocument = async (req, res) => {
         success: false,
         errors: ["Document introuvable."],
       });
-    }
-
-    // Delete file from disk
-    if (document.fileUrl) {
-      const filePath = path.join(__dirname, "../../public", document.fileUrl);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
     }
 
     await prisma.libraryDocument.delete({ where: { id: docId } });

@@ -70,8 +70,18 @@ model LibraryDocument {
   createdByUserId String            @map("created_by_user_id") @db.Uuid
   category        document_category
   title           String            @db.VarChar
+  /**
+   * Optional legacy file metadata for older PDF-based documents.
+   * For new documents created in v1, we store markdown content instead.
+   */
   fileType        String            @default("PDF") @map("file_type") @db.VarChar
   fileUrl         String            @map("file_url") @db.VarChar
+
+  /**
+   * Raw markdown content for the library entry.
+   * New documents should populate this field instead of fileUrl/fileType.
+   */
+  content         String?
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   createdByUser   User              @relation(fields: [createdByUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)

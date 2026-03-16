@@ -9,11 +9,10 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 const authenticate = require("../middlewares/auth.middleware");
 const validate = require("../middlewares/validate.middleware");
-const uploadDocument = require("../middlewares/uploadDocument.middleware");
 const { createDocumentSchema } = require("../schemas/library.schema");
 const { uploadDocument: uploadDocumentController, getDocuments, deleteDocument } = require("../controllers/library.controller");
 
-router.post("/", authenticate, uploadDocument.single("file"), validate(createDocumentSchema), uploadDocumentController);
+router.post("/", authenticate, validate(createDocumentSchema), uploadDocumentController);
 router.get("/", authenticate, getDocuments);
 router.delete("/:docId", authenticate, deleteDocument);
 

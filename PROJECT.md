@@ -45,10 +45,11 @@
 
 ## 🔄 Phase 5 — Intégration LLM
 
-- ✅ Implémentation ClaudeAdapter — branché à une route **POST /llm/test** (`src/routes/llm.routes.js`, `llm.controller.js`)
-- 🔄 Construction du prompt système (Game Master) — prompt minimal dans `testLLM`, pas encore de flux « Game Master » complet
-- ⬜ Gestion du contexte de session (historique des messages)
-- ⬜ Streaming de la réponse vers le front
+- ✅ Implémentation ClaudeAdapter — branché au SDK Anthropic + route **POST /llm/test** (`src/routes/llm.routes.js`, `llm.controller.js`)
+- ✅ Construction du prompt système (Game Master) — prompt littéraire + règles Temeraire centralisé dans `src/lib/gmSystemPrompt.js` et utilisé par `llm.controller`
+- ✅ Gestion du contexte de session (historique des messages) — `llmHistory.buildLimitedHistoryMessages` + résumé automatique optionnel
+- ✅ Suivi de la consommation de tokens LLM — table `token_usage` + migration `add_token_usage` + création via Prisma dans `llm.controller`
+- ✅ Streaming de la réponse vers le front — endpoint SSE **GET /llm/test/stream** (pseudo-streaming compatible tous providers)
 
 ---
 
@@ -65,6 +66,7 @@
 
 - ✅ Remplacer les données simulées par de vrais appels API — `character.html`, `chat.html`, `library.html` utilisent `apiRequest()` vers `/characters`, `/sessions`, `/messages`, `/dice/roll`, etc.
 - ✅ Gestion des tokens JWT côté front — stockage dans `sessionStorage` (`authToken`), header `Authorization: Bearer` sur les pages protégées
+- ✅ Sélection/création automatique de session à la connexion — `login.html` récupère la dernière GameSession ou en crée une (`/sessions`) puis stocke `sessionId` / `sessionName` dans `sessionStorage` pour le chat et la bibliothèque
 - 🔄 Gestion des états de chargement et d’erreur — présente sur chat (isLoading, boutons désactivés) et login (affichage erreur) ; partielle sur character/library (catch + console, peu d’affichage utilisateur)
 
 ---

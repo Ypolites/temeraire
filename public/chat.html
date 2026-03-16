@@ -940,6 +940,38 @@
           caption:      caption || undefined,
           selectedMood: selectedMood.value,
         });
+
+        // Appeler le MJ IA pour obtenir une réponse, en utilisant la même session.
+        try {
+          const res = await fetch('/llm/test', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: text,
+              sessionId: SESSION_ID,
+            }),
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.success && data.reply) {
+            // Rendu immédiat de la réponse MJ
+            renderMessage({
+              type: 'gm',
+              content: data.reply,
+              createdAt: new Date().toISOString(),
+            });
+
+            const msgListAfter = document.getElementById('messageList');
+            msgListAfter.scrollTop = msgListAfter.scrollHeight;
+          } else {
+            console.error('[chat] llm/test error:', data);
+          }
+        } catch (llmErr) {
+          console.error('[chat] erreur lors de l’appel LLM:', llmErr);
+        }
+
         setSyncBadge('synced');
       } catch (err) {
         console.error('[chat] sendMessage error:', err);

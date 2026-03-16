@@ -13,6 +13,10 @@ const documentCategoryEnum = z.enum([
 const createDocumentSchema = z.object({
   title:    z.string().min(1, "Le titre est requis.").max(200),
   category: documentCategoryEnum,
+  content:  z
+    .string()
+    .min(1, "Le contenu est requis.")
+    .max(20000, "Le contenu est trop long."),
 });
 
 module.exports = { createDocumentSchema };

@@ -135,6 +135,55 @@
           sessionStorage.setItem('authToken', data.token);
         }
 
+        // Après connexion : récupérer ou créer une session de jeu,
+        // puis stocker sessionId / sessionName pour le chat & la bibliothèque.
+        try {
+          const token = data.token;
+          if (token) {
+            // 1) Tenter de récupérer les sessions existantes de l'utilisateur
+            const sessionsRes = await fetch('/sessions', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+            const sessionsData = await sessionsRes.json().catch(() => ({}));
+
+            let sessionId = null;
+            let sessionName = null;
+
+            if (sessionsRes.ok && sessionsData.success && Array.isArray(sessionsData.sessions) && sessionsData.sessions.length > 0) {
+              // On prend la plus récente (API déjà ordonnée par createdAt desc)
+              const s = sessionsData.sessions[0];
+              sessionId = s.id;
+              sessionName = s.name || 'Session';
+            } else {
+              // 2) Aucune session : en créer une par défaut
+              const createRes = await fetch('/sessions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ name: 'Session principale' }),
+              });
+              const createData = await createRes.json().catch(() => ({}));
+              if (createRes.ok && createData.success && createData.session) {
+                sessionId = createData.session.id;
+                sessionName = createData.session.name || 'Session';
+              }
+            }
+
+            if (sessionId) {
+              sessionStorage.setItem('sessionId', sessionId);
+              sessionStorage.setItem('sessionName', sessionName || 'Session');
+            }
+          }
+        } catch (sessionErr) {
+          console.error('[login] Erreur lors de la récupération/création de session :', sessionErr);
+        }
+
         // Redirection vers le salon
         window.location.href = 'chat.html';
       } catch (err) {

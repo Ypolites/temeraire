@@ -8,10 +8,13 @@
 const express = require("express");
 const router = express.Router();
 
-const { testLLM } = require("../controllers/llm.controller");
+const { testLLM, testLLMStream } = require("../controllers/llm.controller");
 
-// POST /llm/test
+// POST /llm/test — réponse JSON complète
 router.post("/test", testLLM);
+
+// GET /llm/test/stream — Server-Sent Events (SSE)
+router.get("/test/stream", testLLMStream);
 
 module.exports = router;
 

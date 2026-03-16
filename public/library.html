@@ -51,20 +51,9 @@
       border-radius: var(--radius);
       cursor: pointer;
       transition: background var(--transition);
-      position: relative;
-      overflow: hidden;
     }
 
     .btn-upload:hover { background: var(--navy-light); }
-
-    .btn-upload input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
 
     .category-tabs {
       display: flex;
@@ -320,31 +309,19 @@
       cursor: pointer;
     }
 
-    .file-display {
+    .modal-field textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      color: var(--navy);
       background: var(--ivory);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0.5rem 0.75rem;
-      font-family: 'Lato', sans-serif;
-      font-size: 0.85rem;
-      color: var(--navy);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .file-display .file-icon {
-      width: 28px;
-      height: 28px;
-      background: var(--danger);
-      border-radius: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.55rem;
-      font-weight: 700;
-      color: var(--white);
-      flex-shrink: 0;
+      outline: none;
+      box-sizing: border-box;
     }
 
     .modal-btn-row {
@@ -399,6 +376,16 @@
 
     .modal-error.visible { display: block; }
 
+    .content-preview {
+      white-space: pre-wrap;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--navy);
+      max-height: 7rem;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
     @media (max-width: 600px) {
       .doc-grid { grid-template-columns: 1fr; }
     }
@@ -421,10 +408,9 @@
 
     <div class="lib-page-header">
       <h1>Bibliothèque</h1>
-      <button class="btn-upload" id="uploadTrigger">
-        📎 Ajouter un document
-        <input type="file" accept=".pdf,.txt,.md,.docx" id="filePickerInput" />
-      </button>
+          <button class="btn-upload" id="openEditorBtn">
+            ✏️ Ajouter une entrée
+          </button>
     </div>
 
     <!-- Category tabs -->
@@ -445,15 +431,7 @@
   <div class="overlay" id="uploadModal">
     <div class="modal-card">
       <button class="modal-close" id="modalClose">×</button>
-      <h3>Ajouter un document</h3>
-
-      <div class="modal-field">
-        <label>Fichier sélectionné</label>
-        <div class="file-display">
-          <div class="file-icon">PDF</div>
-          <span id="selectedFileName">Aucun fichier choisi</span>
-        </div>
-      </div>
+          <h3>Ajouter une entrée à la bibliothèque</h3>
 
       <div class="modal-field">
         <label for="docTitle">Titre du document</label>
@@ -469,6 +447,11 @@
           <option value="Lore">Lore</option>
         </select>
       </div>
+
+          <div class="modal-field">
+            <label for="docContent">Contenu (markdown)</label>
+            <textarea id="docContent" placeholder="Saisissez ici les règles, directives ou éléments de lore en markdown..."></textarea>
+          </div>
 
       <div class="modal-error" id="modalError"></div>
 
@@ -557,7 +540,8 @@
           day: 'numeric', month: 'short', year: 'numeric',
         });
         const catLabel = CAT_LABELS[doc.category] || doc.category;
-        const fileType = doc.fileType || 'PDF';
+        const fileType = doc.fileType || 'MD';
+        const preview = (doc.content || '').slice(0, 350);
 
         const card = document.createElement('div');
         card.className = 'doc-card';
@@ -573,8 +557,14 @@
             <span class="sep"></span>
             <span>${dateStr}</span>
           </div>
+          <div class="content-preview" data-id="${doc.id}">
+            ${preview
+              ? preview.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              : '<em>(Aucun contenu)</em>'}
+            ${doc.content && doc.content.length > 350 ? '…' : ''}
+          </div>
           <div class="doc-card-footer">
-            <a class="btn-open" href="${doc.fileUrl}" target="_blank" rel="noopener">Ouvrir</a>
+            <button class="btn-open" data-id="${doc.id}">Ouvrir</button>
             <button class="btn-delete" data-id="${doc.id}" title="Supprimer">🗑 Supprimer</button>
           </div>
         `;
@@ -587,6 +577,16 @@
           const docId = btn.dataset.id;
           if (!confirm('Supprimer ce document ?')) return;
           await deleteDocument(docId);
+        });
+      });
+
+      // Action d'ouverture simple : afficher le contenu markdown brut pour l'instant
+      grid.querySelectorAll('.btn-open').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const docId = btn.dataset.id;
+          const doc = allDocuments.find(d => d.id === docId);
+          if (!doc) return;
+          alert(doc.content || '(Aucun contenu)');
         });
       });
     }
@@ -637,20 +637,8 @@
       });
     });
 
-    // ── Upload flow ──
-    let pendingFile = null;
-
-    document.getElementById('filePickerInput').addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
-      pendingFile = file;
-      document.getElementById('selectedFileName').textContent = file.name;
-      // Pré-remplir le titre depuis le nom du fichier
-      const guessTitle = file.name
-        .replace(/\.[^.]+$/, '')
-        .replace(/[-_]/g, ' ');
-      document.getElementById('docTitle').value =
-        guessTitle.charAt(0).toUpperCase() + guessTitle.slice(1);
+    // ── Ouverture de la modale d’édition ──
+    document.getElementById('openEditorBtn').addEventListener('click', function () {
       document.getElementById('uploadModal').classList.add('visible');
     });
 
@@ -659,10 +647,8 @@
       document.getElementById('modalError').classList.remove('visible');
       document.getElementById('modalError').textContent = '';
       document.getElementById('modalConfirm').disabled = false;
-      pendingFile = null;
-      document.getElementById('filePickerInput').value = '';
-      document.getElementById('selectedFileName').textContent = 'Aucun fichier choisi';
       document.getElementById('docTitle').value = '';
+      document.getElementById('docContent').value = '';
     }
 
     document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -675,6 +661,7 @@
     document.getElementById('modalConfirm').addEventListener('click', async function () {
       const title    = document.getElementById('docTitle').value.trim();
       const category = document.getElementById('docCategory').value;
+      const content  = document.getElementById('docContent').value.trim();
       const errorEl  = document.getElementById('modalError');
 
       errorEl.classList.remove('visible');
@@ -684,8 +671,9 @@
         return;
       }
 
-      if (!pendingFile) {
-        errorEl.textContent = 'Aucun fichier sélectionné.';
+      if (!content) {
+        document.getElementById('docContent').style.borderColor = 'var(--danger)';
+        errorEl.textContent = 'Le contenu est requis.';
         errorEl.classList.add('visible');
         return;
       }
@@ -700,16 +688,10 @@
       this.textContent = 'Envoi…';
 
       try {
-        // FormData pour l'upload multipart
-        const formData = new FormData();
-        formData.append('file', pendingFile);
-        formData.append('title', title);
-        formData.append('category', category);
-
         const data = await apiRequest(
           `/sessions/${SESSION_ID}/documents`,
           'POST',
-          formData
+          { title, category, content }
         );
 
         // Ajouter le nouveau document en tête de liste
